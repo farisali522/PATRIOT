@@ -1,0 +1,7 @@
+django
+mysqlclient
+pillow
+django-import-export
+django-image-cropping
+easy-thumbnails
+python-dotenv

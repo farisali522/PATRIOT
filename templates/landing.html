@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PATRIOT - Pusat Komando Digital</title>
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-maroon: #800000;
+            --deep-maroon: #4a0000;
+            --accent-gold: #D4AF37;
+            --gold-light: #F9E29C;
+            --dark-bg: #1a0202;
+            /* Maroon Tua Banget */
+            --text-light: #ffffff;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            overflow: hidden;
+        }
+
+        /* Rich Maroon Gradient - Menghilangkan kesan Abu-abu */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2b0000 0%, #1a0202 50%, #000000 100%);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(128, 0, 0, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(128, 0, 0, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(74, 0, 0, 0.5) 0%, transparent 100%);
+            z-index: 1;
+        }
+
+        .minimal-hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .hero-container {
+            max-width: 850px;
+            padding: 2rem;
+            text-align: center;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .hero-logo {
+            width: 130px;
+            height: auto;
+            margin-bottom: 2.5rem;
+            animation: fadeInDown 1.2s ease-out;
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));
+        }
+
+        .hero-title {
+            font-size: clamp(4rem, 15vw, 7.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #ffffff, var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInDown 1.5s ease-out;
+            line-height: 1;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.75rem, 2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5rem;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            animation: fadeInUp 1.8s ease-out;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .btn-wrapper {
+            animation: fadeIn 2.5s ease-in;
+        }
+
+        .btn-login-main {
+            position: relative;
+            padding: 1.25rem 5.5rem;
+            font-size: 0.95rem;
+            border-radius: 4px;
+            background: var(--primary-maroon);
+            color: white;
+            border: 1px solid var(--accent-gold);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
+            letter-spacing: 0.3em;
+            overflow: hidden;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(128, 0, 0, 0.6);
+        }
+
+        .btn-login-main:hover {
+            transform: translateY(-8px);
+            background: var(--accent-gold);
+            color: var(--primary-maroon);
+            box-shadow: 0 20px 40px rgba(128, 0, 0, 0.4);
+            border-color: white;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Additional Glow for more Maroon feels */
+        .maroon-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(128, 0, 0, 0.2) 0%, transparent 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 576px) {
+            .hero-container {
+                padding: 1rem;
+            }
+
+            .hero-logo {
+                width: 90px;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+                letter-spacing: 0.1em;
+            }
+
+            .hero-subtitle {
+                font-size: 0.7rem;
+                letter-spacing: 0.2em;
+                margin-bottom: 3.5rem;
+                padding: 0 10px;
+            }
+
+            .btn-login-main {
+                padding: 1rem 3rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-gradient"></div>
+    <div class="maroon-glow"></div>
+
+    <section class="minimal-hero">
+        <div class="hero-container">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="hero-logo">
+            <h1 class="hero-title">PATRIOT</h1>
+            <p class="hero-subtitle">Pantau Aktivitas Terintegrasi Online & Terukur</p>
+
+            <div class="btn-wrapper">
+                <a href="/login/" class="btn-login-main">LOGIN SYSTEM</a>
+            </div>
+        </div>
+    </section>
+
+</body>
+
+</html>

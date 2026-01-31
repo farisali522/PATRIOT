@@ -1,0 +1,97 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Verifikasi Akun Medsos - PATRIOT{% endblock %}
+
+{% block body_class %}has-sidebar{% endblock %}
+
+{% block sidebar %}
+{% include 'layouts/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-0 text-maroon ls-1">VERIFIKASI AKUN MEDSOS</h5>
+            <p class="text-muted small mb-0">Tinjau dan verifikasi pendaftaran akun dari Commander Wilayah.</p>
+        </div>
+    </div>
+
+    <!-- Panel Verifikasi -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white border-0 py-3 px-4">
+            <h6 class="fw-bold mb-0 text-dark small"><i class="fas fa-clock text-warning me-2"></i>ANTREAN VERIFIKASI
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0">COMMANDER</th>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0">PLATFORM</th>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0">AKUN</th>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0">TANGGAL</th>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0 text-end">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for akun in akun_pending %}
+                        <tr>
+                            <td class="px-4 py-3">
+                                <div class="fw-bold text-dark">{{ akun.owner.username }}</div>
+                                <span class="text-muted small">ID: #{{ akun.owner.id }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <i class="fab fa-{{ akun.get_platform_display|lower }} text-maroon fs-5"></i>
+                                <span class="ms-2 small">{{ akun.get_platform_display }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="fw-bold text-dark">{{ akun.username }}</div>
+                                <a href="{{ akun.link_profil }}" target="_blank"
+                                    class="text-primary small text-decoration-none">
+                                    Lihat Profil <i class="fas fa-external-link-alt ms-1" style="font-size: 0.8em;"></i>
+                                </a>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="small text-muted">{{ akun.tanggal_daftar|date:"d M Y H:i" }}</span>
+                            </td>
+                            <td class="px-4 py-3 text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold"
+                                        style="font-size: 11px;">
+                                        <i class="fas fa-check me-1"></i> Verifikasi
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold"
+                                        style="font-size: 11px;">
+                                        <i class="fas fa-times me-1"></i> Tolak
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-check-circle fa-3x text-light mb-3"></i>
+                                <p class="text-muted mb-0">Tidak ada pengajuan akun yang perlu diverifikasi.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-maroon {
+        color: #800000;
+    }
+
+    .ls-1 {
+        letter-spacing: 1px;
+    }
+</style>
+{% endblock %}

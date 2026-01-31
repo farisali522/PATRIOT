@@ -1,0 +1,170 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}SOP Operasional - PATRIOT{% endblock %}
+
+{% block body_class %}has-sidebar{% endblock %}
+
+{% block sidebar %}
+{% include 'layouts/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-0 text-maroon ls-1">STANDAR OPERASIONAL PROSEDUR (SOP)</h5>
+            <p class="text-muted small mb-0">Panduan protokol operasional sistem PATRIOT.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-maroon btn-sm rounded-pill px-3 shadow-sm">
+                <i class="fas fa-download me-2"></i>Download PDF
+            </button>
+            <button class="btn btn-maroon btn-sm rounded-pill px-3 shadow-sm">
+                <i class="fas fa-print me-2"></i>Cetak SOP
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar SOP (Navigasi Cepat) -->
+        <div class="col-12 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 85px;">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold text-dark mb-3 px-2">DAFTAR ISI</h6>
+                    <div class="list-group list-group-flush small">
+                        <a href="#umum"
+                            class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 active bg-maroon-soft text-maroon fw-bold mb-1">
+                            <i class="fas fa-info-circle me-2"></i>Ketentuan Umum
+                        </a>
+                        <a href="#dco" class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 mb-1">
+                            <i class="fas fa-satellite me-2"></i>Protokol DCO
+                        </a>
+                        <a href="#commander"
+                            class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 mb-1">
+                            <i class="fas fa-user-shield me-2"></i>Protokol Commander
+                        </a>
+                        <a href="#cadre"
+                            class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 mb-1">
+                            <i class="fas fa-users me-2"></i>Protokol Pasukan (Cadre)
+                        </a>
+                        <a href="#darurat"
+                            class="list-group-item list-group-item-action border-0 rounded-3 py-2 px-3 mb-1 text-danger fw-bold">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Keadaan Darurat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konten SOP -->
+        <div class="col-12 col-lg-9">
+            <!-- Ketentuan Umum -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" id="umum">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h6 class="fw-bold mb-0 text-maroon">I. KETENTUAN UMUM</h6>
+                </div>
+                <div class="card-body px-4 py-3 border-top">
+                    <ol class="text-dark small lh-lg">
+                        <li>Sistem PATRIOT adalah aset strategis organisasi yang harus dijaga kerahasiaannya.</li>
+                        <li>Setiap personil wajib menggunakan identitas asli yang telah terdaftar di pangkalan data
+                            pusat.</li>
+                        <li>Dilarang menyebarluaskan instruksi misi ke luar jaringan internal PATRIOT tanpa izin DCO.
+                        </li>
+                        <li>Seluruh aktivitas dalam sistem tercatat secara real-time untuk keperluan audit internal.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Protokol DCO -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" id="dco">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h6 class="fw-bold mb-0 text-maroon">II. PROTOKOL DIGITAL COMMAND OFFICER (DCO)</h6>
+                </div>
+                <div class="card-body px-4 py-3 border-top">
+                    <p class="small text-muted mb-3 italic">"DCO bertanggung jawab atas arus informasi dan validasi aset
+                        strategis."</p>
+                    <ul class="text-dark small lh-lg">
+                        <li><strong>Input Konten:</strong> Pastikan konten memiliki narasi yang positif dan selaras
+                            dengan visi perjuangan.</li>
+                        <li><strong>Verifikasi Aset:</strong> Melakukan pengecekan fisik/digital terhadap akun yang
+                            didaftarkan Commander dalam kurun waktu 1x24 jam.</li>
+                        <li><strong>Distribusi Tugas:</strong> Misi harus didistribusikan secara proporsional
+                            berdasarkan urgensi isu.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Protokol Commander -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" id="commander">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h6 class="fw-bold mb-0 text-maroon">III. PROTOKOL COMMANDER (DEWAN DPC)</h6>
+                </div>
+                <div class="card-body px-4 py-3 border-top">
+                    <ul class="text-dark small lh-lg">
+                        <li><strong>Pendaftaran Aset:</strong> Commander wajib mendaftarkan akun media sosial resmi
+                            wilayah masing-masing.</li>
+                        <li><strong>Monitoring:</strong> Memantau keaktifan Cadre di wilayah tanggung jawabnya melalui
+                            Papan Skor.</li>
+                        <li><strong>Laporan:</strong> Memberikan feedback berkala kepada DCO terkait kendala teknis di
+                            lapangan.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Protokol Cadre -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" id="cadre">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h6 class="fw-bold mb-0 text-maroon">IV. PROTOKOL PASUKAN DIGITAL (CADRE)</h6>
+                </div>
+                <div class="card-body px-4 py-3 border-top">
+                    <ul class="text-dark small lh-lg">
+                        <li><strong>Pengerjaan Misi:</strong> Melaksanakan misi (Like, Comment, Share) sesuai instruksi
+                            yang diberikan.</li>
+                        <li><strong>Etika Berkomentar:</strong> Menggunakan bahasa yang santun, cerdas, dan tidak
+                            provokatif/SARA.</li>
+                        <li><strong>Kecepatan Respon:</strong> Misi dengan label <span
+                                class="badge bg-danger rounded-pill">Urgent</span> wajib diselesaikan secepat mungkin.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-maroon {
+        color: #800000;
+    }
+
+    .ls-1 {
+        letter-spacing: 1px;
+    }
+
+    .bg-maroon-soft {
+        background-color: rgba(128, 0, 0, 0.08);
+    }
+
+    .btn-maroon {
+        background-color: #800000;
+        color: white;
+        border: none;
+    }
+
+    .btn-maroon:hover {
+        background-color: #600000;
+        color: white;
+    }
+
+    .list-group-item-action.active {
+        border-right: 4px solid #800000 !important;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+{% endblock %}

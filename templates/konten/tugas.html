@@ -1,0 +1,214 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Daftar Tugas - PATRIOT{% endblock %}
+
+{% block body_class %}has-sidebar{% endblock %}
+
+{% block sidebar %}
+{% include 'layouts/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0 text-maroon ls-1">MANAJEMEN TUGAS</h5>
+        <!-- Tombol Tambah Tugas dihapus karena tugas dibuat via Daftar Konten (Modal) -->
+    </div>
+
+    <!-- Tabs Navigasi -->
+    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill px-3 py-1 fw-bold border" id="pills-aktif-tab"
+                data-bs-toggle="pill" data-bs-target="#pills-aktif" type="button" role="tab" style="font-size: 11px;">
+                <i class="fas fa-bullseye me-2"></i>TUGAS AKTIF
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-3 py-1 fw-bold border ms-2" id="pills-riwayat-tab"
+                data-bs-toggle="pill" data-bs-target="#pills-riwayat" type="button" role="tab" style="font-size: 11px;">
+                <i class="fas fa-history me-2"></i>RIWAYAT TUGAS
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="pills-tabContent">
+
+        <!-- Tab Tugas Aktif -->
+        <div class="tab-pane fade show active" id="pills-aktif" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">KONTEN</th>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">JENIS TUGAS</th>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">POIN</th>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">PERIODE</th>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0 text-end">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tugas in tugas_aktif %}
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-platform me-3 flex-shrink-0 text-center"
+                                                style="width: 40px;">
+                                                {% if tugas.konten.platform == 'INSTAGRAM' %}
+                                                <i class="fab fa-instagram fs-4 text-danger"></i>
+                                                {% elif tugas.konten.platform == 'TIKTOK' %}
+                                                <i class="fab fa-tiktok fs-4 text-dark"></i>
+                                                {% else %}
+                                                <i class="fas fa-share-alt fs-4 text-secondary"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div style="max-width: 300px;">
+                                                <h6 class="mb-0 small fw-bold text-dark text-truncate">{{
+                                                    tugas.konten.judul }}</h6>
+                                                <a href="{{ tugas.konten.link_konten }}" target="_blank"
+                                                    class="small text-decoration-none text-muted">
+                                                    <i class="fas fa-external-link-alt me-1"></i>Lihat Konten
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            {% if tugas.is_like %}<span
+                                                class="badge bg-danger-soft text-danger">Like</span>{% endif %}
+                                            {% if tugas.is_komen %}<span
+                                                class="badge bg-primary-soft text-primary">Komen</span>{% endif %}
+                                            {% if tugas.is_share %}<span
+                                                class="badge bg-success-soft text-success">Share</span>{% endif %}
+                                            {% if tugas.is_follow %}<span
+                                                class="badge bg-info-soft text-dark">Follow</span>{% endif %}
+                                        </div>
+                                        {% if tugas.instruksi %}
+                                        <div class="small text-muted fst-italic mt-1" style="font-size: 11px;">"{{
+                                            tugas.instruksi }}"</div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="badge bg-warning text-dark rounded-pill">{{ tugas.poin }}
+                                            Poin</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="small fw-bold {{ tugas.sisa_hari_class }}">
+                                            <i class="far fa-clock me-1"></i> {{ tugas.tanggal_selesai|timeuntil:today
+                                            }} lagi
+                                        </div>
+                                        <div class="small text-muted" style="font-size: 10px;">
+                                            {{ tugas.tanggal_mulai|date:"d M" }} - {{ tugas.tanggal_selesai|date:"d M Y"
+                                            }}
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill" title="Detail">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-clipboard-check fa-3x mb-3 opacity-25"></i>
+                                        <p class="mb-0">Tidak ada tugas aktif saat ini.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Riwayat -->
+        <div class="tab-pane fade" id="pills-riwayat" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">KONTEN</th>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">STATUS</th>
+                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">PERIODE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tugas in tugas_selesai %}
+                                <tr class="opacity-75">
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                <i class="fas fa-check-circle text-success fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 small fw-bold text-dark">{{ tugas.konten.judul }}</h6>
+                                                <small class="text-muted">{{ tugas.konten.platform }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="badge bg-secondary">Selesai / Expired</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <small class="text-muted">{{ tugas.tanggal_selesai|date:"d M Y" }}</small>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-5 text-muted">Belum ada riwayat tugas.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-maroon {
+        color: #800000;
+    }
+
+    .ls-1 {
+        letter-spacing: 1px;
+    }
+
+    .bg-danger-soft {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+
+    .bg-success-soft {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+
+    .bg-info-soft {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #800000 !important;
+        color: white !important;
+    }
+
+    .nav-pills .nav-link {
+        color: #6c757d;
+        background-color: #f8f9fa;
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}

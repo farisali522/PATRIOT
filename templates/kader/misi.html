@@ -1,0 +1,252 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Misi PATRIOT - Kedisiplinan & Militansi{% endblock %}
+
+{% block body_class %}has-sidebar{% endblock %}
+
+{% block sidebar %}
+{% include 'layouts/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <div class="text-muted extra-small fw-bold text-uppercase ls-1 mb-2 opacity-75">
+            <i class="fas fa-calendar-day me-1"></i> {% now "d F Y" %} 
+            <span class="mx-2">•</span> 
+            <i class="fas fa-clock me-1 text-maroon"></i> <span id="realtime-clock">{% now "H:i:s" %}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0 text-maroon ls-1">MISI PATRIOT</h5>
+            <div class="d-flex gap-3">
+                <div class="bg-white px-3 py-2 rounded-pill shadow-sm border d-flex align-items-center">
+                    <i class="fas fa-tasks text-primary me-2"></i>
+                    <span class="fw-bold small text-dark">{{ tugas_per_akun|length }} Tugas</span>
+                </div>
+                <div class="bg-white px-3 py-2 rounded-pill shadow-sm border d-flex align-items-center">
+                    <i class="fas fa-coins text-warning me-2"></i>
+                    <span class="fw-bold small text-dark">+{{ total_poin_potensial }} Poin Target</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const clockEl = document.getElementById('realtime-clock');
+            if (clockEl) {
+                const now = new Date();
+                clockEl.textContent = now.toLocaleTimeString('id-ID', { hour12: false });
+            }
+        }
+        setInterval(updateClock, 1000);
+    </script>
+
+    <!-- Info Peluang Poin (Simpel Alert - Bisa Ditutup) -->
+    <div class="alert alert-info border-0 shadow-sm rounded-4 mb-4 d-flex align-items-center alert-dismissible fade show" role="alert">
+        <i class="fas fa-bullhorn fa-lg me-3 text-primary"></i>
+        <div>
+            <h6 class="fw-bold mb-1 small text-uppercase">Pemberitahuan</h6>
+            <p class="small mb-0">
+                Saat ini ada peluang <strong>+{{ total_poin_potensial }} Poin</strong>. 
+                Ingat, satu misi bisa dikerjakan berkali-kali dengan akun berbeda. Gunakan semua akunmu!
+            </p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Grid Misi (Per Akun) -->
+    <div class="row g-4">
+        {% for item in tugas_per_akun %}
+        <div class="col-12 col-md-6 col-xl-4">
+            {% with platform=item.tugas.konten.platform %}
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative mission-card platform-{{ platform|lower }} 
+                {% if item.status_akun != 'VERIFIED' or item.is_done %} grayscale-disabled opacity-75 {% endif %}">
+                
+                <!-- Platform Theme Bar (Top) -->
+                <div class="platform-header-bar"></div>
+
+                <!-- Platform Icon Logo (Floating Right) -->
+                <div class="platform-logo-bg">
+                    <i class="fab fa-{{ platform|lower }}"></i>
+                </div>
+
+                <!-- Platform & Poin Badge -->
+                <div class="position-absolute top-0 end-0 mt-4 me-3 z-index-1 d-flex flex-column align-items-end gap-2">
+                    <span class="badge rounded-pill px-3 py-2 shadow-sm platform-badge">
+                        <i class="fab fa-{{ platform|lower }} me-1"></i> {{ platform }}
+                    </span>
+                    <div class="bg-warning text-dark fw-bold rounded-pill px-3 py-1 shadow-sm" style="font-size: 0.7rem;">
+                        <i class="fas fa-coins me-1"></i> +{{ item.tugas.poin }}
+                    </div>
+                </div>
+
+                <!-- Account Status Badge (Floating Left) -->
+                <div class="position-absolute top-0 start-0 mt-4 ms-3 z-index-1">
+                    {% if item.akun %}
+                        <div class="bg-white border-{{ platform|lower }} text-{{ platform|lower }} fw-bold rounded-pill px-3 py-1 shadow-sm border" style="font-size: 0.7rem;">
+                            <i class="fas fa-user-circle me-1"></i> {{ item.akun.username }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body p-4 pt-5">
+                    <!-- Area Konten -->
+                    <div class="mb-3 mt-3">
+                        <h6 class="fw-bold text-dark mb-1 line-clamp-2 h5">{{ item.tugas.konten.judul|upper }}</h6>
+                        <div class="text-muted border-top pt-2 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
+                            <div><i class="fas fa-calendar-alt me-1"></i> Batas: {{ item.tugas.tanggal_selesai|date:"d M Y"}}, 23:59 WIB</div>
+                            {% if item.is_done %}
+                            <span class="badge bg-success text-white rounded-pill px-2 py-1"><i class="fas fa-check me-1"></i> BERHASIL</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- JENIS TUGAS -->
+                        <div class="mt-4 mb-3">
+                            <div class="small fw-bold text-muted mb-2 text-uppercase ls-1" style="font-size: 0.6rem;">Tugas Anda:</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% if item.tugas.is_like %}<div class="task-badge task-like"><i class="fas fa-heart me-1"></i> LIKE</div>{% endif %}
+                                {% if item.tugas.is_komen %}<div class="task-badge task-komen"><i class="fas fa-comment me-1"></i> KOMEN</div>{% endif %}
+                                {% if item.tugas.is_share %}<div class="task-badge task-share"><i class="fas fa-share me-1"></i> SHARE</div>{% endif %}
+                                {% if item.tugas.is_follow %}<div class="task-badge task-follow"><i class="fas fa-user-plus me-1"></i> FOLLOW</div>{% endif %}
+                                {% if item.tugas.is_reply %}<div class="task-badge task-reply"><i class="fas fa-reply me-1"></i> REPLY</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <!-- INSTRUKSI KHUSUS -->
+                        <div class="pt-2 border-top">
+                            <p class="text-muted mb-0 italic" style="font-size: 0.75rem; line-height: 1.4;">
+                                <i class="fas fa-info-circle me-1 text-maroon"></i>
+                                <strong>Petunjuk:</strong>
+                                {{ item.tugas.instruksi|default:'Lakukan sesuai jenis tugas di atas.'}}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-2">
+                        {% if item.status_akun == 'VERIFIED' %}
+                            <!-- Tombol untuk Akun Terverifikasi -->
+                            <a href="{{ item.tugas.konten.link_konten }}" target="_blank" class="btn btn-sm btn-platform-outline rounded-pill py-2 fw-bold" style="font-size: 0.75rem;">
+                                <i class="fas fa-external-link-alt me-2"></i> BUKA LINK KONTEN
+                            </a>
+
+                            {% if item.is_done %}
+                            <button class="btn btn-sm btn-success rounded-pill py-2 fw-bold shadow-sm" disabled style="font-size: 0.75rem;">
+                                <i class="fas fa-check-circle me-2"></i> SUDAH DILAPORKAN
+                            </button>
+                            {% else %}
+                            <form action="{% url 'konfirmasi_misi' item.tugas.id %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="akun_id" value="{{ item.akun.id }}">
+                                <button type="submit" class="btn btn-sm btn-platform rounded-pill py-2 fw-bold shadow-sm w-100" style="font-size: 0.75rem;">
+                                    <i class="fas fa-check-double me-2"></i> KONFIRMASI SELESAI
+                                </button>
+                            </form>
+                            {% endif %}
+                        {% else %}
+                            <!-- Kasus Akun PENDING, REJECTED, atau BELUM DAFTAR -->
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill py-2 fw-bold opacity-50" disabled style="font-size: 0.75rem;">
+                                <i class="fas fa-lock me-2"></i> KONTEN TERKUNCI
+                            </button>
+                            
+                            <div class="text-center mt-1">
+                                {% if item.status_akun == 'PENDING' %}
+                                    <div class="p-2 rounded-3 bg-light border border-warning">
+                                        <div class="text-warning small fw-bold" style="font-size: 0.65rem;"><i class="fas fa-clock me-1"></i> VERIFIKASI PENDING</div>
+                                        <div class="text-muted extra-small">Akun: @{{ item.akun.username|cut:"@" }}</div>
+                                    </div>
+                                {% elif item.status_akun == 'REJECTED' %}
+                                    <div class="p-2 rounded-3 bg-light border border-danger text-center">
+                                        <div class="text-danger extra-small fw-bold mb-1"><i class="fas fa-times-circle me-1"></i> PENDAFTARAN DITOLAK</div>
+                                        <a href="{% url 'akun_medsos_kader' %}" class="btn btn-sm btn-maroon rounded-pill px-3 py-1" style="font-size: 0.6rem;">KELOLA AKUN</a>
+                                    </div>
+                                {% else %}
+                                    <div class="p-2 rounded-3 bg-light border border-secondary border-dashed">
+                                        <div class="text-muted extra-small fw-bold mb-1">AKUN TIDAK TERSEDIA</div>
+                                        <a href="{% url 'akun_medsos_kader' %}" class="btn btn-maroon btn-sm rounded-pill px-3 py-1" style="font-size: 0.6rem;">DAFTARKAN AKUN</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5 bg-white rounded-4 shadow-sm border-0">
+            <i class="fas fa-check-circle fa-4x text-light mb-3"></i>
+            <h5 class="fw-bold text-dark">SEMUA MISI SELESAI!</h5>
+            <p class="text-muted mb-0">Belum ada misi baru. Tetap waspada, Patriot!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* PLATFORM COLORS */
+    :root {
+        --color-instagram: #E1306C;
+        --color-tiktok: #000000;
+        --color-facebook: #1877F2;
+        --color-twitter: #1DA1F2;
+        --color-youtube: #FF0000;
+        --color-default: #800000;
+    }
+
+    .mission-card { transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05) !important; }
+    .mission-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important; }
+    
+    .z-index-1 { z-index: 10; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .grayscale-disabled { filter: grayscale(100%); }
+    .extra-small { font-size: 0.65rem; }
+    .ls-1 { letter-spacing: 1px; }
+
+    .platform-header-bar { height: 6px; width: 100%; }
+    .platform-logo-bg { 
+        position: absolute; right: -20px; bottom: -20px; 
+        font-size: 8rem; opacity: 0.05; transform: rotate(-15deg); 
+        pointer-events: none;
+    }
+
+    /* SPECIFIC THEMES */
+    /* Instagram */
+    .platform-instagram .platform-header-bar { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
+    .platform-instagram .platform-badge { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+    .platform-instagram .btn-platform { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); color: white; border: none; }
+    .platform-instagram .btn-platform-outline { border: 2px solid #dc2743; color: #dc2743; }
+    .platform-instagram .text-instagram { color: #dc2743; }
+    .platform-instagram .border-instagram { border-color: #dc2743 !important; }
+
+    /* TikTok */
+    .platform-tiktok .platform-header-bar { background: #000; }
+    .platform-tiktok .platform-badge { background: #000; }
+    .platform-tiktok .btn-platform { background: #000; color: white; border: none; }
+    .platform-tiktok .btn-platform-outline { border: 2px solid #000; color: #000; }
+    .platform-tiktok .text-tiktok { color: #000; }
+    .platform-tiktok .border-tiktok { border-color: #000 !important; }
+
+    /* Facebook */
+    .platform-facebook .platform-header-bar { background: #1877F2; }
+    .platform-facebook .platform-badge { background: #1877F2; }
+    .platform-facebook .btn-platform { background: #1877F2; color: white; border: none; }
+    .platform-facebook .btn-platform-outline { border: 2px solid #1877F2; color: #1877F2; }
+    .platform-facebook .text-facebook { color: #1877F2; }
+    .platform-facebook .border-facebook { border-color: #1877F2 !important; }
+
+    /* TASK BADGES */
+    .task-badge { border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .task-like { background-color: #ffeef0; color: #dc3545; border: 1px solid #ffccd2; }
+    .task-komen { background-color: #e7f3ff; color: #0d6efd; border: 1px solid #cfe2ff; }
+    .task-share { background-color: #eafbea; color: #198754; border: 1px solid #d1e7dd; }
+    .task-follow { background-color: #f0f7ff; color: #0dcaf0; border: 1px solid #cff4fc; }
+    .task-reply { background-color: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; }
+    
+    /* UTILS */
+    .btn-maroon { background-color: #800000; color: white; }
+    .text-maroon { color: #800000; }
+    .border-dashed { border-style: dashed !important; }
+</style>
+{% endblock %}

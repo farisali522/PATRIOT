@@ -1,0 +1,145 @@
+{% load static %}
+<style>
+    .sidebar-inner {
+        padding: 2rem 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .sidebar-logo-section {
+        padding: 0 1.5rem 2.5rem;
+        text-align: center;
+    }
+
+    .sidebar-logo-section img {
+        width: 50px;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 4px 8px rgba(128, 0, 0, 0.1));
+    }
+
+    .sidebar-logo-section h5 {
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--primary-maroon);
+        margin: 0;
+    }
+
+    .sidebar-nav {
+        flex-grow: 1;
+    }
+
+    .sidebar-label {
+        padding: 0 1.5rem 0.8rem;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #aaa;
+    }
+
+    .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.9rem 1.5rem;
+        color: #555;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+        margin-bottom: 2px;
+    }
+
+    .sidebar-nav-link i {
+        width: 24px;
+        font-size: 1.1rem;
+        margin-right: 12px;
+        opacity: 0.7;
+    }
+
+    .sidebar-nav-link:hover {
+        background: rgba(128, 0, 0, 0.03);
+        color: var(--primary-maroon);
+    }
+
+    .sidebar-nav-link.active {
+        background: rgba(128, 0, 0, 0.05);
+        color: var(--primary-maroon);
+        border-left-color: var(--primary-maroon);
+        font-weight: 600;
+    }
+
+    .sidebar-nav-link.active i {
+        opacity: 1;
+    }
+
+    .sidebar-footer {
+        padding: 1.5rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.03);
+    }
+</style>
+
+<aside class="sidebar">
+    <div class="sidebar-inner">
+        <div class="sidebar-logo-section">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+            <h5>PATRIOT</h5>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard_uploader' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'dashboard_uploader' %}active{% endif %}">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+
+            <!-- DCO MENU: Only show if DCO mode -->
+            {% if request.session.active_role == 'DCO' or not request.session.active_role %}
+            <a href="{% url 'daftar_konten' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'daftar_konten' %}active{% endif %}">
+                <i class="fas fa-cloud-upload-alt"></i> Manajemen Konten
+            </a>
+            <a href="{% url 'daftar_tugas' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'daftar_tugas' %}active{% endif %}">
+                <i class="fas fa-tasks"></i> Manajemen Tugas
+            </a>
+            <a href="{% url 'verifikasi_akun' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'verifikasi_akun' %}active{% endif %}">
+                <i class="fas fa-user-check"></i> Verifikasi Aset
+            </a>
+            {% endif %}
+
+            <!-- Commander Section: Only show if COMMANDER mode -->
+            {% if request.session.active_role == 'COMMANDER' %}
+            <a href="{% url 'akun_medsos' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'akun_medsos' %}active{% endif %}">
+                <i class="fas fa-id-card-alt"></i> Manajemen Akun
+            </a>
+            {% endif %}
+
+            <!-- Cadre Section: Only show if CADRE mode -->
+            {% if request.session.active_role == 'CADRE' %}
+            <a href="{% url 'akun_medsos_kader' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'akun_medsos_kader' %}active{% endif %}">
+                <i class="fas fa-id-card"></i> Akun Medsos Saya
+            </a>
+            <a href="{% url 'misi_kader' %}" class="sidebar-nav-link">
+                <i class="fas fa-bolt"></i> Misi Tersedia
+            </a>
+            <a href="#" class="sidebar-nav-link">
+                <i class="fas fa-medal"></i> Papan Skor (Poin)
+            </a>
+            {% endif %}
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'sop' %}" class="sidebar-nav-link border-0 p-0 m-0 mb-3"
+                style="color: var(--primary-maroon);">
+                <i class="fas fa-book"></i> SOP Operasional
+            </a>
+            <a href="{% url 'login' %}" class="sidebar-nav-link text-danger border-0 p-0 m-0">
+                <i class="fas fa-power-off"></i> Keluar Sistem
+            </a>
+        </div>
+    </div>
+</aside>
