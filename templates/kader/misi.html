@@ -12,10 +12,12 @@
 {% block content %}
 <div class="container-fluid py-4">
     <div class="mb-4">
-        <div class="text-muted extra-small fw-bold text-uppercase ls-1 mb-2 opacity-75">
-            <i class="fas fa-calendar-day me-1"></i> {% now "d F Y" %} 
-            <span class="mx-2">•</span> 
-            <i class="fas fa-clock me-1 text-maroon"></i> <span id="realtime-clock">{% now "H:i:s" %}</span>
+        <div class="d-inline-block bg-white px-3 py-2 rounded-pill shadow-sm border mb-3">
+            <div class="text-secondary small fw-bold text-uppercase ls-1 d-flex align-items-center">
+                <i class="fas fa-calendar-day me-2 text-maroon"></i> <span class="me-3">{% now "d F Y" %}</span>
+                <div class="vr me-3"></div> 
+                <i class="fas fa-clock me-2 text-maroon"></i> <span id="realtime-clock">{% now "H:i" %}</span>
+            </div>
         </div>
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0 text-maroon ls-1">MISI PATRIOT</h5>
@@ -37,11 +39,42 @@
             const clockEl = document.getElementById('realtime-clock');
             if (clockEl) {
                 const now = new Date();
-                clockEl.textContent = now.toLocaleTimeString('id-ID', { hour12: false });
+                clockEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
             }
         }
         setInterval(updateClock, 1000);
     </script>
+
+    <!-- Alert Biodata & Akun Medsos -->
+    {% if not biodata_lengkap %}
+    <div class="alert alert-danger border-0 shadow-sm rounded-4 p-3 mb-3" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-circle fa-lg text-danger me-3"></i>
+            <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1 small text-uppercase ls-1">Lengkapi Biodata Anda!</h6>
+                <p class="small mb-0">Anda belum melengkapi biodata Anda.</p>
+            </div>
+            <a href="{% url 'biodata_kader' %}" class="btn btn-light btn-sm rounded-pill px-3 ms-3">
+                <i class="fas fa-user-edit me-1"></i>Lengkapi Sekarang
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if not has_verified_account %}
+    <div class="alert alert-warning border-0 shadow-sm rounded-4 p-3 mb-3" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle fa-lg text-warning me-3"></i>
+            <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1 small text-uppercase ls-1">Daftar Akun Medsos Anda!</h6>
+                <p class="small mb-0">Anda belum mendaftarkan akun media sosial.</p>
+            </div>
+            <a href="{% url 'akun_medsos_kader' %}" class="btn btn-light btn-sm rounded-pill px-3 ms-3">
+                <i class="fas fa-id-card me-1"></i>Daftar Akun
+            </a>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Info Peluang Poin (Simpel Alert - Bisa Ditutup) -->
     <div class="alert alert-info border-0 shadow-sm rounded-4 mb-4 d-flex align-items-center alert-dismissible fade show" role="alert">
@@ -73,8 +106,8 @@
                 </div>
 
                 <!-- Platform & Poin Badge -->
-                <div class="position-absolute top-0 end-0 mt-4 me-3 z-index-1 d-flex flex-column align-items-end gap-2">
-                    <span class="badge rounded-pill px-3 py-2 shadow-sm platform-badge">
+                <div class="position-absolute top-0 end-0 mt-3 me-3 z-index-1 d-flex flex-column align-items-end gap-2">
+                    <span class="badge rounded-pill px-3 py-2 shadow-sm platform-badge" style="font-size: 0.65rem;">
                         <i class="fab fa-{{ platform|lower }} me-1"></i> {{ platform }}
                     </span>
                     <div class="bg-warning text-dark fw-bold rounded-pill px-3 py-1 shadow-sm" style="font-size: 0.7rem;">
@@ -83,9 +116,9 @@
                 </div>
 
                 <!-- Account Status Badge (Floating Left) -->
-                <div class="position-absolute top-0 start-0 mt-4 ms-3 z-index-1">
+                <div class="position-absolute top-0 start-0 mt-3 ms-3 z-index-1">
                     {% if item.akun %}
-                        <div class="bg-white border-{{ platform|lower }} text-{{ platform|lower }} fw-bold rounded-pill px-3 py-1 shadow-sm border" style="font-size: 0.7rem;">
+                        <div class="bg-white border-{{ platform|lower }} text-{{ platform|lower }} fw-bold rounded-pill px-3 py-1 shadow-sm border" style="font-size: 0.65rem;">
                             <i class="fas fa-user-circle me-1"></i> {{ item.akun.username }}
                         </div>
                     {% endif %}
@@ -94,23 +127,23 @@
                 <div class="card-body p-4 pt-5">
                     <!-- Area Konten -->
                     <div class="mb-3 mt-3">
-                        <h6 class="fw-bold text-dark mb-1 line-clamp-2 h5">{{ item.tugas.konten.judul|upper }}</h6>
-                        <div class="text-muted border-top pt-2 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
+                        <h6 class="fw-bold text-dark mb-1 line-clamp-2" style="font-size: 0.9rem;">{{ item.tugas.konten.judul|upper }}</h6>
+                        <div class="text-muted border-top pt-2 d-flex justify-content-between align-items-center" style="font-size: 0.65rem;">
                             <div><i class="fas fa-calendar-alt me-1"></i> Batas: {{ item.tugas.tanggal_selesai|date:"d M Y"}}, 23:59 WIB</div>
                             {% if item.is_done %}
-                            <span class="badge bg-success text-white rounded-pill px-2 py-1"><i class="fas fa-check me-1"></i> BERHASIL</span>
+                            <span class="badge bg-success text-white rounded-pill px-2 py-1" style="font-size: 0.65rem;"><i class="fas fa-check me-1"></i> SELESAI</span>
                             {% endif %}
                         </div>
 
                         <!-- JENIS TUGAS -->
-                        <div class="mt-4 mb-3">
+                        <div class="mt-3 mb-3">
                             <div class="small fw-bold text-muted mb-2 text-uppercase ls-1" style="font-size: 0.6rem;">Tugas Anda:</div>
                             <div class="d-flex flex-wrap gap-2">
-                                {% if item.tugas.is_like %}<div class="task-badge task-like"><i class="fas fa-heart me-1"></i> LIKE</div>{% endif %}
-                                {% if item.tugas.is_komen %}<div class="task-badge task-komen"><i class="fas fa-comment me-1"></i> KOMEN</div>{% endif %}
-                                {% if item.tugas.is_share %}<div class="task-badge task-share"><i class="fas fa-share me-1"></i> SHARE</div>{% endif %}
-                                {% if item.tugas.is_follow %}<div class="task-badge task-follow"><i class="fas fa-user-plus me-1"></i> FOLLOW</div>{% endif %}
-                                {% if item.tugas.is_reply %}<div class="task-badge task-reply"><i class="fas fa-reply me-1"></i> REPLY</div>{% endif %}
+                                {% if item.tugas.is_like %}<div class="task-badge task-like" style="font-size: 0.65rem;"><i class="fas fa-heart me-1"></i> LIKE</div>{% endif %}
+                                {% if item.tugas.is_komen %}<div class="task-badge task-komen" style="font-size: 0.65rem;"><i class="fas fa-comment me-1"></i> KOMEN</div>{% endif %}
+                                {% if item.tugas.is_share %}<div class="task-badge task-share" style="font-size: 0.65rem;"><i class="fas fa-share me-1"></i> SHARE</div>{% endif %}
+                                {% if item.tugas.is_follow %}<div class="task-badge task-follow" style="font-size: 0.65rem;"><i class="fas fa-user-plus me-1"></i> FOLLOW</div>{% endif %}
+                                {% if item.tugas.is_reply %}<div class="task-badge task-reply" style="font-size: 0.65rem;"><i class="fas fa-reply me-1"></i> REPLY</div>{% endif %}
                             </div>
                         </div>
 
@@ -127,26 +160,26 @@
                     <div class="d-grid gap-2 mt-2">
                         {% if item.status_akun == 'VERIFIED' %}
                             <!-- Tombol untuk Akun Terverifikasi -->
-                            <a href="{{ item.tugas.konten.link_konten }}" target="_blank" class="btn btn-sm btn-platform-outline rounded-pill py-2 fw-bold" style="font-size: 0.75rem;">
+                            <a href="{{ item.tugas.konten.link_konten }}" target="_blank" class="btn btn-sm btn-platform-outline rounded-pill py-2 fw-bold" style="font-size: 0.7rem;">
                                 <i class="fas fa-external-link-alt me-2"></i> BUKA LINK KONTEN
                             </a>
 
                             {% if item.is_done %}
-                            <button class="btn btn-sm btn-success rounded-pill py-2 fw-bold shadow-sm" disabled style="font-size: 0.75rem;">
+                            <button class="btn btn-sm btn-success rounded-pill py-2 fw-bold shadow-sm" disabled style="font-size: 0.7rem;">
                                 <i class="fas fa-check-circle me-2"></i> SUDAH DILAPORKAN
                             </button>
                             {% else %}
                             <form action="{% url 'konfirmasi_misi' item.tugas.id %}" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="akun_id" value="{{ item.akun.id }}">
-                                <button type="submit" class="btn btn-sm btn-platform rounded-pill py-2 fw-bold shadow-sm w-100" style="font-size: 0.75rem;">
+                                <button type="submit" class="btn btn-sm btn-platform rounded-pill py-2 fw-bold shadow-sm w-100" style="font-size: 0.7rem;">
                                     <i class="fas fa-check-double me-2"></i> KONFIRMASI SELESAI
                                 </button>
                             </form>
                             {% endif %}
                         {% else %}
                             <!-- Kasus Akun PENDING, REJECTED, atau BELUM DAFTAR -->
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill py-2 fw-bold opacity-50" disabled style="font-size: 0.75rem;">
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill py-2 fw-bold opacity-50" disabled style="font-size: 0.7rem;">
                                 <i class="fas fa-lock me-2"></i> KONTEN TERKUNCI
                             </button>
                             

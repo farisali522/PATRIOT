@@ -1,0 +1,277 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Biodata - PATRIOT{% endblock %}
+
+{% block body_class %}has-sidebar{% endblock %}
+
+{% block sidebar %}
+{% include 'layouts/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Messages -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4"
+        role="alert">
+        <i class="fas fa-check-circle me-2"></i> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-0 text-maroon ls-1">BIODATA</h5>
+        </div>
+        {% if profile.is_biodata_complete %}
+        <span class="badge bg-success rounded-pill px-3 py-2">
+            <i class="fas fa-check-circle me-1"></i>Biodata Lengkap
+        </span>
+        {% else %}
+        <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+            <i class="fas fa-exclamation-triangle me-1"></i>Belum Lengkap
+        </span>
+        {% endif %}
+    </div>
+
+    <!-- Info Alert -->
+    <div class="alert alert-info border-0 rounded-4 mb-4 p-3" role="alert">
+        <div class="d-flex">
+            <i class="fas fa-info-circle me-3 mt-1"></i>
+            <div>
+                <h6 class="fw-bold mb-1 small">Informasi Penting</h6>
+                <p class="small mb-0">Pastikan data yang Anda masukkan sesuai dengan KTP. Data anda akan diverifikasi.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Form Biodata -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4" id="cardFormBiodata">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold mb-0 text-maroon">
+                            <i class="fas fa-edit me-2"></i>Form Biodata
+                        </h6>
+                        <button type="button" id="btnEditBiodata" class="btn btn-maroon text-white btn-sm rounded-pill px-4 shadow-sm fw-bold border-0 transition-hover" onclick="toggleEditMode()" style="background: var(--primary-maroon); letter-spacing: 0.5px;">
+                            <i class="fas fa-pencil-alt me-2"></i>Edit Biodata
+                        </button>
+                    </div>
+
+                    <!-- Form Wrapper dengan Overlay -->
+                    <div class="position-relative">
+                        <!-- Overlay Disabled -->
+                        <div id="overlayDisabled" class="overlay-disabled"></div>
+                        
+                        <form method="POST" enctype="multipart/form-data" id="formBiodata">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <!-- NIK -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">NIK (KTP) <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" name="nik" class="form-control form-control-sm rounded-3 form-input"
+                                    value="{{ profile.nik|default:'' }}" placeholder="16 digit NIK" 
+                                    minlength="16" maxlength="16" pattern="\d{16}"
+                                    title="NIK harus berisi 16 digit angka"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    style="font-size: 0.85rem;"
+                                    required>
+                            </div>
+
+                            <!-- Nama Lengkap -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">Nama Lengkap <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" name="nama_lengkap" class="form-control form-control-sm rounded-3 form-input"
+                                    value="{{ profile.nama_lengkap|default:'' }}" placeholder="Sesuai KTP" style="font-size: 0.85rem;" required disabled>
+                            </div>
+
+                            <!-- Tempat Lahir -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">Tempat Lahir <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" name="tempat_lahir" class="form-control form-control-sm rounded-3 form-input"
+                                    value="{{ profile.tempat_lahir|default:'' }}" placeholder="Kota/Kabupaten" style="font-size: 0.85rem;" required disabled>
+                            </div>
+
+                            <!-- Tanggal Lahir -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">Tanggal Lahir <span
+                                        class="text-danger">*</span></label>
+                                <input type="date" name="tanggal_lahir" class="form-control form-control-sm rounded-3 form-input"
+                                    value="{{ profile.tanggal_lahir|date:'Y-m-d'|default:'' }}" style="font-size: 0.85rem;" required disabled>
+                            </div>
+
+                            <!-- Jenis Kelamin -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">Jenis Kelamin <span
+                                        class="text-danger">*</span></label>
+                                <select name="jenis_kelamin" class="form-select form-select-sm rounded-3 form-input" style="font-size: 0.85rem;" required disabled>
+                                    <option value="">Pilih...</option>
+                                    <option value="L" {% if profile.jenis_kelamin == 'L' %}selected{% endif %}>Laki-laki</option>
+                                    <option value="P" {% if profile.jenis_kelamin == 'P' %}selected{% endif %}>Perempuan</option>
+                                </select>
+                            </div>
+
+                            <!-- Nomor HP -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">Nomor HP/WA <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" name="nomor_hp" class="form-control form-control-sm rounded-3 form-input"
+                                    value="{{ profile.nomor_hp|default:'' }}" placeholder="08xxxxxxxxxx" style="font-size: 0.85rem;" required disabled>
+                            </div>
+
+                            <!-- Alamat Lengkap -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">Alamat Lengkap <span
+                                        class="text-danger">*</span></label>
+                                <textarea name="alamat_lengkap" class="form-control form-control-sm rounded-3 form-input" rows="3"
+                                    placeholder="Alamat sesuai KTP"
+                                    style="font-size: 0.85rem;"
+                                    required disabled>{{ profile.alamat_lengkap|default:'' }}</textarea>
+                            </div>
+
+                            <!-- Upload KTP -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold mb-1" style="font-size: 0.8rem;">Foto KTP <span
+                                        class="text-danger">*</span></label>
+
+                                {% if profile.foto_ktp %}
+                                <div class="mb-3">
+                                    <div class="alert alert-success border-0 rounded-3 p-2 d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        <small style="font-size: 0.8rem;">KTP sudah diupload: <strong>{{ profile.foto_ktp.name }}</strong></small>
+                                    </div>
+                                    <img src="{{ profile.foto_ktp.url }}" alt="KTP"
+                                        class="img-fluid rounded-3 shadow-sm" style="max-height: 200px;">
+                                </div>
+                                {% endif %}
+
+                                <input type="file" name="foto_ktp" id="inputFotoKTP" class="form-control form-control-sm rounded-3 form-input" accept="image/*"
+                                    style="font-size: 0.85rem;"
+                                    {% if not profile.foto_ktp %}required{% endif %} disabled>
+                                <small class="text-muted" style="font-size: 0.75rem;">Format: JPG, PNG, max 2MB</small>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4 pt-3 border-top">
+                            <button type="submit" id="btnSubmit" class="btn btn-maroon rounded-pill px-5" disabled>
+                                <i class="fas fa-save me-2"></i>Simpan Biodata
+                            </button>
+                        </div>
+                        </form>
+                    </div><!-- End Form Wrapper -->
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-maroon {
+        color: #800000;
+    }
+
+    .bg-maroon {
+        background-color: #800000;
+    }
+
+    .btn-maroon {
+        background-color: #800000;
+        color: white;
+        border: none;
+        font-weight: 600;
+    }
+
+    .btn-maroon:hover {
+        background-color: #4a0000;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(128, 0, 0, 0.3);
+    }
+
+    .ls-1 {
+        letter-spacing: 1px;
+    }
+
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #800000;
+        box-shadow: 0 0 0 0.2rem rgba(128, 0, 0, 0.15);
+    }
+
+    .form-control:disabled,
+    .form-select:disabled {
+        background-color: #e9ecef !important;
+        border-color: #dee2e6;
+        color: #495057;
+        cursor: not-allowed;
+        opacity: 1;
+    }
+
+    /* Overlay Disabled - Lebih Transparan */
+    .overlay-disabled {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(248, 249, 250, 0.3);
+        z-index: 10;
+        border-radius: 0.5rem;
+        cursor: not-allowed;
+        transition: opacity 0.3s ease;
+        pointer-events: all;
+    }
+
+    .overlay-disabled.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+</style>
+
+<script>
+    let isEditMode = false;
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const formInputs = document.querySelectorAll('.form-input');
+        const btnEdit = document.getElementById('btnEditBiodata');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const overlay = document.getElementById('overlayDisabled');
+
+        formInputs.forEach(input => {
+            input.disabled = !isEditMode;
+        });
+
+        btnSubmit.disabled = !isEditMode;
+
+        if (isEditMode) {
+            // Mode Edit: Hilangkan overlay, ubah tombol jadi Batal
+            overlay.classList.add('hidden');
+            btnEdit.innerHTML = '<i class="fas fa-times me-1"></i>Batal';
+            btnEdit.classList.remove('btn-outline-maroon');
+            btnEdit.classList.add('btn-danger');
+        } else {
+            // Mode View: Tampilkan overlay, ubah tombol jadi Edit
+            overlay.classList.remove('hidden');
+            btnEdit.innerHTML = '<i class="fas fa-pencil-alt me-1"></i>Edit Biodata';
+            btnEdit.classList.remove('btn-danger');
+            btnEdit.classList.add('btn-outline-maroon');
+        }
+    }
+</script>
+{% endblock %}

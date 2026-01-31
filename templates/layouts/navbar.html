@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg sticky-top"
     style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(128, 0, 0, 0.08); z-index: 1050;">
     <div class="container-fluid px-4">
-        <button class="btn btn-link text-maroon d-lg-none me-3 p-0" onclick="toggleSidebar()"
+        <button class="btn btn-link text-maroon me-3 p-0" onclick="toggleSidebar()"
             style="color: var(--primary-maroon);">
             <i class="fas fa-bars fa-lg"></i>
         </button>
@@ -39,7 +39,7 @@
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="background: #ffffff;">
                     <li class="d-md-none px-3 py-2 small fw-bold border-bottom mb-1">Admin_Faris</li>
                     <li><a class="dropdown-item text-dark" href="#"><i class="fas fa-user me-2"></i> Profil</a></li>
-                    <li><a class="dropdown-item text-dark" href="#"><i class="fas fa-key me-2"></i> Password</a></li>
+                    <li><a class="dropdown-item text-dark" href="{% url 'ubah_password' %}"><i class="fas fa-key me-2"></i> Password</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>

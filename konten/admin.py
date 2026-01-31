@@ -1,14 +1,19 @@
 from django.contrib import admin
-from .models import Konten, TugasKonten
+from .models import Konten, TugasKonten, KategoriKonten
 
 class TugasKontenInline(admin.TabularInline):
     model = TugasKonten
     extra = 5  # Menampilkan 5 baris kosong default
 
+@admin.register(KategoriKonten)
+class KategoriKontenAdmin(admin.ModelAdmin):
+    list_display = ('nama', 'deskripsi')
+    search_fields = ('nama',)
+
 @admin.register(Konten)
 class KontenAdmin(admin.ModelAdmin):
-    list_display = ('judul', 'platform', 'tanggal_upload', 'uploader')
-    list_filter = ('platform', 'tanggal_upload')
+    list_display = ('judul', 'platform', 'kategori', 'tanggal_upload', 'uploader')
+    list_filter = ('platform', 'kategori', 'tanggal_upload')
     search_fields = ('judul', 'link_konten')
     ordering = ('-tanggal_upload',)
     inlines = [TugasKontenInline]
@@ -24,9 +29,28 @@ from .models import Profile, AkunMedsos
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'role', 'commander')
-    list_filter = ('role',)
-    search_fields = ('user__username', 'commander__username')
+    list_display = ('user', 'role', 'nama_lengkap', 'nik', 'nomor_hp', 'biodata_lengkap', 'tanggal_update')
+    list_filter = ('role', 'biodata_lengkap', 'jenis_kelamin')
+    search_fields = ('user__username', 'nama_lengkap', 'nik', 'nomor_hp')
+    readonly_fields = ('tanggal_update', 'biodata_lengkap')
+    
+    fieldsets = (
+        ('Informasi User', {
+            'fields': ('user', 'role', 'commander')
+        }),
+        ('Biodata Pribadi', {
+            'fields': ('nik', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin')
+        }),
+        ('Kontak', {
+            'fields': ('alamat_lengkap', 'nomor_hp')
+        }),
+        ('Dokumen', {
+            'fields': ('foto_ktp',)
+        }),
+        ('Status', {
+            'fields': ('biodata_lengkap', 'tanggal_update')
+        }),
+    )
 
 @admin.register(AkunMedsos)
 class AkunMedsosAdmin(admin.ModelAdmin):

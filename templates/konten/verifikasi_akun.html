@@ -13,15 +13,15 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h5 class="fw-bold mb-0 text-maroon ls-1">VERIFIKASI AKUN MEDSOS</h5>
-            <p class="text-muted small mb-0">Tinjau dan verifikasi pendaftaran akun dari Commander Wilayah.</p>
+            <h7 class="fw-bold mb-0 text-maroon ls-1">VERIFIKASI AKUN MEDSOS</h7>
+            <p class="text-muted mb-0" style="font-size: 0.8rem;">Tinjau dan verifikasi pendaftaran akun dari Commander Wilayah.</p>
         </div>
     </div>
 
     <!-- Panel Verifikasi -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="card-header bg-white border-0 py-3 px-4">
-            <h6 class="fw-bold mb-0 text-dark small"><i class="fas fa-clock text-warning me-2"></i>ANTREAN VERIFIKASI
+            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.8rem;"><i class="fas fa-clock text-warning me-2"></i>ANTREAN VERIFIKASI
             </h6>
         </div>
         <div class="card-body p-0">
@@ -29,42 +29,42 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th class="px-4 py-3 text-secondary small fw-bold border-0">COMMANDER</th>
-                            <th class="px-4 py-3 text-secondary small fw-bold border-0">PLATFORM</th>
-                            <th class="px-4 py-3 text-secondary small fw-bold border-0">AKUN</th>
-                            <th class="px-4 py-3 text-secondary small fw-bold border-0">TANGGAL</th>
-                            <th class="px-4 py-3 text-secondary small fw-bold border-0 text-end">AKSI</th>
+                            <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">COMMANDER</th>
+                            <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">PLATFORM</th>
+                            <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">AKUN</th>
+                            <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">TANGGAL</th>
+                            <th class="px-4 py-3 text-secondary fw-bold border-0 text-end" style="font-size: 0.7rem; letter-spacing: 0.5px;">AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for akun in akun_pending %}
                         <tr>
                             <td class="px-4 py-3">
-                                <div class="fw-bold text-dark">{{ akun.owner.username }}</div>
-                                <span class="text-muted small">ID: #{{ akun.owner.id }}</span>
+                                <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ akun.owner.username }}</div>
+                                <span class="text-muted" style="font-size: 0.7rem;">ID: #{{ akun.owner.id }}</span>
                             </td>
                             <td class="px-4 py-3">
-                                <i class="fab fa-{{ akun.get_platform_display|lower }} text-maroon fs-5"></i>
-                                <span class="ms-2 small">{{ akun.get_platform_display }}</span>
+                                <i class="fab fa-{{ akun.get_platform_display|lower }} text-maroon" style="font-size: 1rem;"></i>
+                                <span class="ms-2" style="font-size: 0.8rem;">{{ akun.get_platform_display }}</span>
                             </td>
                             <td class="px-4 py-3">
-                                <div class="fw-bold text-dark">{{ akun.username }}</div>
+                                <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ akun.username }}</div>
                                 <a href="{{ akun.link_profil }}" target="_blank"
-                                    class="text-primary small text-decoration-none">
-                                    Lihat Profil <i class="fas fa-external-link-alt ms-1" style="font-size: 0.8em;"></i>
+                                    class="text-primary text-decoration-none" style="font-size: 0.7rem;">
+                                    Lihat Profil <i class="fas fa-external-link-alt ms-1"></i>
                                 </a>
                             </td>
                             <td class="px-4 py-3">
-                                <span class="small text-muted">{{ akun.tanggal_daftar|date:"d M Y H:i" }}</span>
+                                <span class="text-muted" style="font-size: 0.75rem;">{{ akun.tanggal_daftar|date:"d M Y H:i" }}</span>
                             </td>
                             <td class="px-4 py-3 text-end">
                                 <div class="d-flex justify-content-end gap-2">
                                     <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold"
-                                        style="font-size: 11px;">
+                                        style="font-size: 0.7rem;">
                                         <i class="fas fa-check me-1"></i> Verifikasi
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold"
-                                        style="font-size: 11px;">
+                                        style="font-size: 0.7rem;">
                                         <i class="fas fa-times me-1"></i> Tolak
                                     </button>
                                 </div>
@@ -74,7 +74,7 @@
                         <tr>
                             <td colspan="5" class="text-center py-5">
                                 <i class="fas fa-check-circle fa-3x text-light mb-3"></i>
-                                <p class="text-muted mb-0">Tidak ada pengajuan akun yang perlu diverifikasi.</p>
+                                <p class="text-muted mb-0" style="font-size: 0.85rem;">Tidak ada pengajuan akun yang perlu diverifikasi.</p>
                             </td>
                         </tr>
                         {% endfor %}

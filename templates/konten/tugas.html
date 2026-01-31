@@ -13,21 +13,23 @@
 <div class="container-fluid py-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold mb-0 text-maroon ls-1">MANAJEMEN TUGAS</h5>
-        <!-- Tombol Tambah Tugas dihapus karena tugas dibuat via Daftar Konten (Modal) -->
+        <h7 class="fw-bold mb-0 text-maroon ls-1">MANAJEMEN TUGAS</h7>
+        <button type="button" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm fw-bold" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#modalTambahTugas">
+            <i class="fas fa-plus me-2"></i>Tambah Tugas
+        </button>
     </div>
 
     <!-- Tabs Navigasi -->
     <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active rounded-pill px-3 py-1 fw-bold border" id="pills-aktif-tab"
-                data-bs-toggle="pill" data-bs-target="#pills-aktif" type="button" role="tab" style="font-size: 11px;">
+            <button class="nav-link active rounded-pill px-3 py-1 fw-bold border" style="font-size: 0.75rem;" id="pills-aktif-tab"
+                data-bs-toggle="pill" data-bs-target="#pills-aktif" type="button" role="tab">
                 <i class="fas fa-bullseye me-2"></i>TUGAS AKTIF
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill px-3 py-1 fw-bold border ms-2" id="pills-riwayat-tab"
-                data-bs-toggle="pill" data-bs-target="#pills-riwayat" type="button" role="tab" style="font-size: 11px;">
+            <button class="nav-link rounded-pill px-3 py-1 fw-bold ms-2 border" style="font-size: 0.75rem;" id="pills-riwayat-tab"
+                data-bs-toggle="pill" data-bs-target="#pills-riwayat" type="button" role="tab">
                 <i class="fas fa-history me-2"></i>RIWAYAT TUGAS
             </button>
         </li>
@@ -38,144 +40,266 @@
 
         <!-- Tab Tugas Aktif -->
         <div class="tab-pane fade show active" id="pills-aktif" role="tabpanel">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">KONTEN</th>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">JENIS TUGAS</th>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">POIN</th>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">PERIODE</th>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0 text-end">AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for tugas in tugas_aktif %}
-                                <tr>
-                                    <td class="px-4 py-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="icon-platform me-3 flex-shrink-0 text-center"
-                                                style="width: 40px;">
-                                                {% if tugas.konten.platform == 'INSTAGRAM' %}
-                                                <i class="fab fa-instagram fs-4 text-danger"></i>
-                                                {% elif tugas.konten.platform == 'TIKTOK' %}
-                                                <i class="fab fa-tiktok fs-4 text-dark"></i>
-                                                {% else %}
-                                                <i class="fas fa-share-alt fs-4 text-secondary"></i>
-                                                {% endif %}
-                                            </div>
-                                            <div style="max-width: 300px;">
-                                                <h6 class="mb-0 small fw-bold text-dark text-truncate">{{
-                                                    tugas.konten.judul }}</h6>
-                                                <a href="{{ tugas.konten.link_konten }}" target="_blank"
-                                                    class="small text-decoration-none text-muted">
-                                                    <i class="fas fa-external-link-alt me-1"></i>Lihat Konten
-                                                </a>
-                                            </div>
+            <div class="row g-4">
+                {% for tugas in tugas_aktif %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    {% with platform=tugas.konten.platform %}
+                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative task-card platform-{{ platform|lower }}">
+                        
+                        <!-- Platform Theme Bar -->
+                        <div class="platform-header-bar"></div>
+
+                        <!-- Platform Logo Background -->
+                        <div class="platform-logo-bg">
+                            <i class="fab fa-{{ platform|lower }}"></i>
+                        </div>
+
+                        <!-- Platform & Poin Badge -->
+                        <div class="position-absolute top-0 end-0 mt-3 me-3 z-index-1 d-flex flex-column align-items-end gap-2">
+                            <span class="badge rounded-pill px-3 py-2 shadow-sm platform-badge" style="font-size: 0.65rem;">
+                                <i class="fab fa-{{ platform|lower }} me-1"></i> {{ platform }}
+                            </span>
+                            <div class="bg-warning text-dark fw-bold rounded-pill px-3 py-1 shadow-sm" style="font-size: 0.7rem;">
+                                <i class="fas fa-coins me-1"></i> +{{ tugas.poin }}
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4 pt-5">
+                            <!-- Judul Konten -->
+                            <div class="mb-3 mt-2">
+                                <h6 class="fw-bold text-dark mb-1 line-clamp-2" style="font-size: 0.9rem;">{{ tugas.konten.judul|upper }}</h6>
+                                <a href="{{ tugas.konten.link_konten }}" target="_blank"
+                                    class="text-decoration-none small text-primary fw-bold" style="font-size: 0.7rem;">
+                                    <i class="fas fa-external-link-alt me-1"></i>Buka Konten
+                                </a>
+                            </div>
+
+                            <!-- Jenis Tugas -->
+                            <div class="mb-3">
+                                <div class="small fw-bold text-muted mb-2 text-uppercase ls-1" style="font-size: 0.65rem;">Jenis Tugas:</div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% if tugas.is_like %}<div class="task-badge task-like" style="font-size: 0.65rem;"><i class="fas fa-heart me-1"></i> LIKE</div>{% endif %}
+                                    {% if tugas.is_komen %}<div class="task-badge task-komen" style="font-size: 0.65rem;"><i class="fas fa-comment me-1"></i> KOMEN</div>{% endif %}
+                                    {% if tugas.is_share %}<div class="task-badge task-share" style="font-size: 0.65rem;"><i class="fas fa-share me-1"></i> SHARE</div>{% endif %}
+                                    {% if tugas.is_follow %}<div class="task-badge task-follow" style="font-size: 0.65rem;"><i class="fas fa-user-plus me-1"></i> FOLLOW</div>{% endif %}
+                                    {% if tugas.is_reply %}<div class="task-badge task-reply" style="font-size: 0.65rem;"><i class="fas fa-reply me-1"></i> REPLY</div>{% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Instruksi -->
+                            {% if tugas.instruksi %}
+                            <div class="mb-3 p-2 bg-light rounded-3 border">
+                                <p class="text-muted mb-0 fst-italic" style="font-size: 0.75rem;">
+                                    <i class="fas fa-info-circle me-1 text-maroon"></i>
+                                    "{{ tugas.instruksi }}"
+                                </p>
+                            </div>
+                            {% endif %}
+
+                            <!-- Periode & Deadline -->
+                            <div class="border-top pt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="text-muted mb-1" style="font-size: 0.7rem;">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ tugas.tanggal_mulai|date:"d M" }} - {{ tugas.tanggal_selesai|date:"d M Y" }}
                                         </div>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="d-flex gap-1 flex-wrap">
-                                            {% if tugas.is_like %}<span
-                                                class="badge bg-danger-soft text-danger">Like</span>{% endif %}
-                                            {% if tugas.is_komen %}<span
-                                                class="badge bg-primary-soft text-primary">Komen</span>{% endif %}
-                                            {% if tugas.is_share %}<span
-                                                class="badge bg-success-soft text-success">Share</span>{% endif %}
-                                            {% if tugas.is_follow %}<span
-                                                class="badge bg-info-soft text-dark">Follow</span>{% endif %}
+                                        <div class="fw-bold {{ tugas.sisa_hari_class }}" style="font-size: 0.7rem;">
+                                            <i class="far fa-clock me-1"></i>
+                                            {% if tugas.tanggal_selesai == today %}
+                                                <span class="text-danger">Berakhir Hari Ini</span>
+                                            {% else %}
+                                                {{ tugas.tanggal_selesai|timeuntil:today }} lagi
+                                            {% endif %}
                                         </div>
-                                        {% if tugas.instruksi %}
-                                        <div class="small text-muted fst-italic mt-1" style="font-size: 11px;">"{{
-                                            tugas.instruksi }}"</div>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="badge bg-warning text-dark rounded-pill">{{ tugas.poin }}
-                                            Poin</span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="small fw-bold {{ tugas.sisa_hari_class }}">
-                                            <i class="far fa-clock me-1"></i> {{ tugas.tanggal_selesai|timeuntil:today
-                                            }} lagi
-                                        </div>
-                                        <div class="small text-muted" style="font-size: 10px;">
-                                            {{ tugas.tanggal_mulai|date:"d M" }} - {{ tugas.tanggal_selesai|date:"d M Y"
-                                            }}
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 text-end">
-                                        <button class="btn btn-sm btn-outline-secondary rounded-pill" title="Detail">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
-                                        <i class="fas fa-clipboard-check fa-3x mb-3 opacity-25"></i>
-                                        <p class="mb-0">Tidak ada tugas aktif saat ini.</p>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" title="Detail" style="font-size: 0.7rem;">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5 bg-white rounded-4 shadow-sm border-0">
+                        <i class="fas fa-clipboard-check fa-4x text-secondary opacity-25 mb-3"></i>
+                        <h6 class="fw-bold text-dark" style="font-size: 0.9rem;">Tidak Ada Tugas Aktif</h6>
+                        <p class="text-muted mb-0" style="font-size: 0.8rem;">Belum ada tugas yang sedang berjalan saat ini.</p>
                     </div>
                 </div>
+                {% endfor %}
             </div>
         </div>
 
         <!-- Tab Riwayat -->
         <div class="tab-pane fade" id="pills-riwayat" role="tabpanel">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">KONTEN</th>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">STATUS</th>
-                                    <th class="px-4 py-3 text-secondary small fw-bold border-0">PERIODE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for tugas in tugas_selesai %}
-                                <tr class="opacity-75">
-                                    <td class="px-4 py-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="me-3">
-                                                <i class="fas fa-check-circle text-success fs-5"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0 small fw-bold text-dark">{{ tugas.konten.judul }}</h6>
-                                                <small class="text-muted">{{ tugas.konten.platform }}</small>
-                                            </div>
+            <div class="row g-4">
+                {% for tugas in tugas_selesai %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 opacity-75">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    {% if tugas.konten.platform == 'INSTAGRAM' %}
+                                        <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffeef0;">
+                                            <i class="fab fa-instagram fa-lg text-danger"></i>
                                         </div>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="badge bg-secondary">Selesai / Expired</span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <small class="text-muted">{{ tugas.tanggal_selesai|date:"d M Y" }}</small>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-center py-5 text-muted">Belum ada riwayat tugas.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                    {% elif tugas.konten.platform == 'TIKTOK' %}
+                                        <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #f0f0f0;">
+                                            <i class="fab fa-tiktok fa-lg text-dark"></i>
+                                        </div>
+                                    {% elif tugas.konten.platform == 'FACEBOOK' %}
+                                        <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #e7f3ff;">
+                                            <i class="fab fa-facebook fa-lg text-primary"></i>
+                                        </div>
+                                    {% elif tugas.konten.platform == 'TWITTER' %}
+                                        <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #f0f0f0;">
+                                            <i class="fab fa-x-twitter fa-lg text-dark"></i>
+                                        </div>
+                                    {% elif tugas.konten.platform == 'YOUTUBE' %}
+                                        <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffeef0;">
+                                            <i class="fab fa-youtube fa-lg text-danger"></i>
+                                        </div>
+                                    {% else %}
+                                        <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #f8f9fa;">
+                                            <i class="fas fa-globe fa-lg text-secondary"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold text-dark mb-1 line-clamp-2" style="font-size: 0.85rem;">{{ tugas.konten.judul }}</h6>
+                                    <span class="badge bg-light text-muted border rounded-pill" style="font-size: 0.65rem;">{{ tugas.konten.platform }}</span>
+                                </div>
+                            </div>
+                            <div class="border-top pt-3 d-flex justify-content-between align-items-center">
+                                <div class="text-muted" style="font-size: 0.7rem;">
+                                    <i class="fas fa-calendar-check me-1"></i>
+                                    Selesai: {{ tugas.tanggal_selesai|date:"d M Y" }}
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalDetail{{ tugas.id }}" style="font-size: 0.7rem;">
+                                    Detail
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5 bg-white rounded-4 shadow-sm border-0">
+                        <i class="fas fa-history fa-4x text-light mb-3"></i>
+                        <p class="text-muted mb-0" style="font-size: 0.8rem;">Belum ada riwayat tugas.</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal Tambah Tugas -->
+<div class="modal fade" id="modalTambahTugas" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-maroon" style="font-size: 0.9rem;">TAMBAH TUGAS BARU</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form method="POST" id="formTambahTugas" action="">
+                    {% csrf_token %}
+                    
+                    <!-- Pilih Konten -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-bold small mb-0">Pilih Konten</label>
+                            <a href="{% url 'daftar_konten' %}" class="text-decoration-none small fw-bold text-success" style="font-size: 0.7rem;">
+                                <i class="fas fa-plus-circle me-1"></i>Tambah Konten
+                            </a>
+                        </div>
+                        <select class="form-select form-select-sm rounded-3" id="selectKonten" required onchange="updateAction(this.value)">
+                            <option value="">-- Pilih Konten --</option>
+                            {% for k in konten_list %}
+                                <option value="{{ k.id }}">{{ k.judul|truncatechars:40 }} ({{ k.platform }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Jenis Tugas -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Jenis Misi</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <input type="checkbox" class="btn-check" name="jenis_tugas[]" value="LIKE" id="checkLike">
+                            <label class="btn btn-outline-danger btn-sm rounded-pill" for="checkLike" style="font-size: 0.7rem;"><i class="fas fa-heart me-1"></i> Like</label>
+                            
+                            <input type="checkbox" class="btn-check" name="jenis_tugas[]" value="KOMEN" id="checkKomen">
+                            <label class="btn btn-outline-primary btn-sm rounded-pill" for="checkKomen" style="font-size: 0.7rem;"><i class="fas fa-comment me-1"></i> Komen</label>
+                            
+                            <input type="checkbox" class="btn-check" name="jenis_tugas[]" value="SHARE" id="checkShare">
+                            <label class="btn btn-outline-success btn-sm rounded-pill" for="checkShare" style="font-size: 0.7rem;"><i class="fas fa-share me-1"></i> Share</label>
+                            
+                            <input type="checkbox" class="btn-check" name="jenis_tugas[]" value="FOLLOW" id="checkFollow">
+                            <label class="btn btn-outline-info btn-sm rounded-pill" for="checkFollow" style="font-size: 0.7rem;"><i class="fas fa-user-plus me-1"></i> Follow</label>
+
+                            <input type="checkbox" class="btn-check" name="jenis_tugas[]" value="REPLY" id="checkReply">
+                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="checkReply" style="font-size: 0.7rem;"><i class="fas fa-reply me-1"></i> Reply</label>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold small">Poin</label>
+                            <input type="number" name="poin" class="form-control form-control-sm rounded-3" value="10" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                             <label class="form-label fw-bold small">Deadline</label>
+                             <input type="date" name="tanggal_selesai" class="form-control form-control-sm rounded-3" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Instruksi Khusus</label>
+                        <textarea name="instruksi" class="form-control form-control-sm rounded-3" rows="2" placeholder="Contoh: Komen yang relevan..."></textarea>
+                    </div>
+
+                    <div class="text-end pt-2">
+                        <button type="submit" id="btnSimpanTugas" class="btn btn-success btn-sm rounded-pill px-4" disabled>Simpan Tugas</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateAction(kontenId) {
+        const form = document.getElementById('formTambahTugas');
+        const btn = document.getElementById('btnSimpanTugas');
+        
+        if(kontenId) {
+            // Gunakan placeholder ID 123456
+            const urlTemplate = "{% url 'tambah_tugas' 123456 %}"; 
+            form.action = urlTemplate.replace('123456', kontenId);
+            btn.disabled = false;
+        } else {
+            form.action = "";
+            btn.disabled = true;
+        }
+    }
+</script>
+
 <style>
+    /* PLATFORM COLORS */
+    :root {
+        --color-instagram: #E1306C;
+        --color-tiktok: #000000;
+        --color-facebook: #1877F2;
+        --color-twitter: #1DA1F2;
+        --color-youtube: #FF0000;
+    }
+
     .text-maroon {
         color: #800000;
     }
@@ -184,22 +308,108 @@
         letter-spacing: 1px;
     }
 
-    .bg-danger-soft {
-        background-color: rgba(220, 53, 69, 0.1);
+    .task-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05) !important;
     }
 
-    .bg-primary-soft {
-        background-color: rgba(13, 110, 253, 0.1);
+    .task-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
     }
 
-    .bg-success-soft {
-        background-color: rgba(25, 135, 84, 0.1);
+    .z-index-1 {
+        z-index: 10;
     }
 
-    .bg-info-soft {
-        background-color: rgba(13, 202, 240, 0.1);
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
+    .platform-header-bar {
+        height: 6px;
+        width: 100%;
+    }
+
+    .platform-logo-bg {
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        font-size: 8rem;
+        opacity: 0.05;
+        transform: rotate(-15deg);
+        pointer-events: none;
+    }
+
+    /* Instagram */
+    .platform-instagram .platform-header-bar {
+        background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+    }
+    .platform-instagram .platform-badge {
+        background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+    }
+
+    /* TikTok */
+    .platform-tiktok .platform-header-bar {
+        background: #000;
+    }
+    .platform-tiktok .platform-badge {
+        background: #000;
+    }
+
+    /* Facebook */
+    .platform-facebook .platform-header-bar {
+        background: #1877F2;
+    }
+    .platform-facebook .platform-badge {
+        background: #1877F2;
+    }
+
+    /* TASK BADGES */
+    .task-badge {
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .task-like {
+        background-color: #ffeef0;
+        color: #dc3545;
+        border: 1px solid #ffccd2;
+    }
+
+    .task-komen {
+        background-color: #e7f3ff;
+        color: #0d6efd;
+        border: 1px solid #cfe2ff;
+    }
+
+    .task-share {
+        background-color: #eafbea;
+        color: #198754;
+        border: 1px solid #d1e7dd;
+    }
+
+    .task-follow {
+        background-color: #f0f7ff;
+        color: #0dcaf0;
+        border: 1px solid #cff4fc;
+    }
+
+    .task-reply {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+    }
+
+    /* NAV PILLS */
     .nav-pills .nav-link.active {
         background-color: #800000 !important;
         color: white !important;
@@ -208,7 +418,10 @@
     .nav-pills .nav-link {
         color: #6c757d;
         background-color: #f8f9fa;
-        margin-right: 10px;
+    }
+
+    .nav-pills .nav-link:hover {
+        background-color: #e9ecef;
     }
 </style>
 {% endblock %}
