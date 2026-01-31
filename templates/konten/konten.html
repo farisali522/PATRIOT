@@ -16,11 +16,13 @@
         <div>
             <h7 class="fw-bold mb-0" style="color: var(--primary-maroon); letter-spacing: 1px;">MANAJEMEN KONTEN</h7>
         </div>
+        {% if request.session.active_role == 'DCO' %}
         <button class="btn btn-success btn-sm rounded-pill px-3 shadow-sm fw-bold"
             style="font-size: 0.75rem;" data-bs-toggle="modal"
             data-bs-target="#inputModal">
             <i class="fas fa-plus me-2"></i> Input Link Baru
         </button>
+        {% endif %}
     </div>
 
     <!-- Filter & Search Container -->
@@ -101,12 +103,14 @@
                         <span class="fw-bold text-dark text-truncate" style="font-size: 0.85rem;">{{ konten.judul }}</span>
 
                         <!-- Tombol Tugas di Header (Stop Propagation agar tidak memicu collapse) -->
+                        {% if request.session.active_role == 'DCO' %}
                         <button
                             class="btn btn-sm btn-maroon text-white border-0 ms-auto py-1 px-2 shadow-sm flex-shrink-0"
                             data-bs-toggle="modal" data-bs-target="#tugasModal{{ konten.id }}"
                             style="font-size: 0.7rem; border-radius: 6px;" onclick="event.stopPropagation();">
                             <i class="fas fa-tasks me-1"></i> TUGAS
                         </button>
+                        {% endif %}
                     </div>
 
                     <!-- Collapsible Content (Default Closed) -->

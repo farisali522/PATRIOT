@@ -7,7 +7,11 @@ from django.contrib.auth import update_session_auth_hash
 def landing_page(request):
     # Set default role jika belum ada
     if 'active_role' not in request.session:
-        request.session['active_role'] = 'DCO'
+        if request.user.is_authenticated:
+            # Jika user sudah login, arahkan ke role aslinya
+            request.session['active_role'] = request.user.profile.role
+        else:
+            request.session['active_role'] = 'DCO'
     return render(request, 'landing.html')
 
 @login_required

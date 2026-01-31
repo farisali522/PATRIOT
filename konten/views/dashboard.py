@@ -27,6 +27,10 @@ def dashboard_uploader(request):
     total_misi_selesai = 0
     
     if request.user.is_authenticated:
+        # Inisialisasi active_role jika belum ada
+        if 'active_role' not in request.session:
+            request.session['active_role'] = request.user.profile.role
+            
         profile = request.user.profile if hasattr(request.user, 'profile') else None
         biodata_lengkap = profile.is_biodata_complete if profile else False
         has_verified_account = AkunMedsos.objects.filter(
@@ -34,12 +38,29 @@ def dashboard_uploader(request):
             status='VERIFIED'
         ).exists()
         
-        # Hitung total poin dan misi selesai untuk CADRE
-        total_poin = RiwayatMisi.objects.filter(user=request.user).aggregate(
+        # Hitung total poin dan misi selesai untuk CADRE (Hanya yang APPROVED)
+        total_poin = RiwayatMisi.objects.filter(user=request.user, status='APPROVED').aggregate(
             total=models.Sum('poin_didapat')
         )['total'] or 0
         
-        total_misi_selesai = RiwayatMisi.objects.filter(user=request.user).count()
+        total_misi_selesai = RiwayatMisi.objects.filter(user=request.user, status='APPROVED').count()
+        
+        # Statistik Akun Medsos (Breakdown per role)
+        if request.session.get('active_role') == 'COMMANDER':
+            sub_ids = request.user.subordinates.values_list('user_id', flat=True)
+            relevant_accounts = AkunMedsos.objects.filter(owner_id__in=sub_ids, role_pemegang='CADRE')
+            stats_label = "AKUN CADRE"
+        else:
+            relevant_accounts = AkunMedsos.objects.filter(owner=request.user, role_pemegang='CADRE')
+            stats_label = "AKUN SAYA"
+
+        user_stats = {
+            'total': relevant_accounts.count(),
+            'ig': relevant_accounts.filter(platform='INSTAGRAM').count(),
+            'tt': relevant_accounts.filter(platform='TIKTOK').count(),
+            'fb': relevant_accounts.filter(platform='FACEBOOK').count(),
+            'label': stats_label
+        }
     
     context = {
         'total_konten': total_konten,
@@ -52,6 +73,7 @@ def dashboard_uploader(request):
         'has_verified_account': has_verified_account,
         'total_poin': total_poin,
         'total_misi_selesai': total_misi_selesai,
+        'user_stats': user_stats,
     }
     return render(request, 'dashboard.html', context)
 

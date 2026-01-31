@@ -25,7 +25,7 @@ class TugasKontenAdmin(admin.ModelAdmin):
     search_fields = ('konten__judul', 'instruksi')
     ordering = ('-tanggal_selesai',)
 
-from .models import Profile, AkunMedsos
+from .models import Profile, AkunMedsos, RiwayatMisi
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -58,3 +58,14 @@ class AkunMedsosAdmin(admin.ModelAdmin):
     list_filter = ('platform', 'status', 'role_pemegang')
     search_fields = ('username', 'owner__username')
     ordering = ('-tanggal_daftar',)
+
+@admin.register(RiwayatMisi)
+class RiwayatMisiAdmin(admin.ModelAdmin):
+    list_display = ('user', 'get_misi_judul', 'akun_digunakan', 'poin_didapat', 'tanggal_selesai')
+    list_filter = ('user', 'tugas', 'tanggal_selesai')
+    search_fields = ('user__username', 'tugas__konten__judul', 'akun_digunakan__username')
+    readonly_fields = ('tanggal_selesai',)
+
+    def get_misi_judul(self, obj):
+        return obj.tugas.konten.judul
+    get_misi_judul.short_description = 'Judul Misi'

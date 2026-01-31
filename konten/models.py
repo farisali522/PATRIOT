@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+import os
 
 class Profile(models.Model):
     ROLE_CHOICES = [
@@ -99,25 +100,59 @@ class Konten(models.Model):
 
     @property
     def get_embed_url(self):
+        url = self.link_konten.strip()
+        
         if self.platform == 'INSTAGRAM':
-            # Bersihkan query params (misal ?igsh=...)
-            clean_url = self.link_konten.split('?')[0]
-            if not clean_url.endswith('/'):
-                clean_url += '/'
-            if 'embed' not in clean_url:
-                return f"{clean_url}embed/captioned/"
+            # Bersihkan query params & hash
+            clean_url = url.split('?')[0].split('#')[0]
+            
+            # Normalisasi domain agar seragam
+            if 'instagr.am' in clean_url:
+                clean_url = clean_url.replace('instagr.am', 'www.instagram.com')
+            
+            if 'instagram.com' in clean_url:
+                # Paksa HTTPS dan www agar endpoint lebih stabil
+                if '://' in clean_url:
+                    parts = clean_url.split('://')
+                    clean_url = f"https://www.instagram.com/{parts[1].split('instagram.com/')[1]}" if 'instagram.com/' in parts[1] else clean_url
+                else:
+                    clean_url = f"https://www.instagram.com/{clean_url.split('instagram.com/')[1]}" if 'instagram.com/' in clean_url else clean_url
+                
+                # Pastikan tidak double www atau https
+                clean_url = clean_url.replace('https://www.www.', 'https://www.')
+                
+                # Ganti /reels/ atau /reel/ jadi /p/
+                clean_url = clean_url.replace('/reels/', '/p/').replace('/reel/', '/p/')
+                
+                if not clean_url.endswith('/'):
+                    clean_url += '/'
+                
+                # Hanya post (p) atau IGTV (tv) yang bisa di-embed
+                if '/p/' in clean_url or '/tv/' in clean_url:
+                    if 'embed' not in clean_url:
+                        return f"{clean_url}embed/captioned/"
             return clean_url
         
         elif self.platform == 'TIKTOK':
-            # Ekstrak Video ID dari URL TikTok (biasanya angka panjang di akhir)
-            # Format: https://www.tiktok.com/@user/video/723682...
-            try:
-                video_id = self.link_konten.split('video/')[1].split('?')[0]
-                return f"https://www.tiktok.com/embed/v2/{video_id}?lang=id-ID"
-            except IndexError:
-                return self.link_konten # Return original if parse failed
+            # Support Berbagai Format TikTok (Mobile, Shortlink, Desktop)
+            # Format: https://www.tiktok.com/@user/video/123456789
+            # Format: https://vt.tiktok.com/ZS.../
+            
+            clean_url = url.split('?')[0].split('#')[0]
+            if not clean_url.endswith('/'):
+                clean_url += '/'
+
+            if 'video/' in clean_url:
+                try:
+                    video_id = clean_url.split('video/')[1].split('/')[0]
+                    return f"https://www.tiktok.com/embed/v2/{video_id}?lang=id-ID"
+                except: pass
+            
+            # Jika link pendek/mobile, kita tidak bisa ambil ID dengan mudah tanpa request
+            # Tapi kita return original agar iframe mencoba me-load (meski tiktok sering blokir shortlink di iframe)
+            return clean_url
         
-        return self.link_konten
+        return url
 
     class Meta:
         verbose_name = "Konten Digital"
@@ -170,6 +205,7 @@ class AkunMedsos(models.Model):
     username = models.CharField(max_length=100)
     link_profil = models.URLField(max_length=500)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    catatan_dco = models.TextField(blank=True, null=True, verbose_name="Catatan dari DCO")
     tanggal_daftar = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -181,16 +217,47 @@ class AkunMedsos(models.Model):
         unique_together = ('platform', 'username') # Kunci mati: Tidak boleh ada user + platform yang sama di seluruh sistem
 
 class RiwayatMisi(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Menunggu Verifikasi'),
+        ('APPROVED', 'Disetujui'),
+        ('REJECTED', 'Ditolak'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='riwayat_misi')
     tugas = models.ForeignKey(TugasKonten, on_delete=models.CASCADE, related_name='laporan_masuk')
     akun_digunakan = models.ForeignKey(AkunMedsos, on_delete=models.CASCADE)
+    
+    # Bukti per jenis tugas
+    bukti_like = models.ImageField(upload_to='bukti_misi/like/', null=True, blank=True)
+    bukti_komen = models.ImageField(upload_to='bukti_misi/komen/', null=True, blank=True)
+    bukti_share = models.ImageField(upload_to='bukti_misi/share/', null=True, blank=True)
+    bukti_follow = models.ImageField(upload_to='bukti_misi/follow/', null=True, blank=True)
+    bukti_reply = models.ImageField(upload_to='bukti_misi/reply/', null=True, blank=True)
+    
+    foto_bukti = models.ImageField(upload_to='bukti_misi/', null=True, blank=True) # Silakan hapus nanti jika sudah migrasi total
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    catatan_verifikator = models.TextField(blank=True, null=True)
     tanggal_selesai = models.DateTimeField(auto_now_add=True)
+    tanggal_verifikasi = models.DateTimeField(null=True, blank=True)
     poin_didapat = models.IntegerField()
 
     def __str__(self):
-        return f"{self.user.username} - {self.tugas.konten.judul} (@{self.akun_digunakan.username})"
+        return f"{self.user.username} - {self.tugas.konten.judul} (@{self.akun_digunakan.username}) - {self.status}"
 
     class Meta:
         verbose_name = "Riwayat Misi"
         verbose_name_plural = "Riwayat Misi"
         unique_together = ('tugas', 'akun_digunakan') # 1 akun hanya bisa klaim 1 tugas sekali
+
+# Signal untuk menghapus file fisik saat record dihapus (Anti-Sampah)
+@receiver(post_delete, sender=RiwayatMisi)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Menghapus file dari filesystem saat record RiwayatMisi dihapus.
+    """
+    fields = ['bukti_like', 'bukti_komen', 'bukti_share', 'bukti_follow', 'bukti_reply', 'foto_bukti']
+    for field_name in fields:
+        field = getattr(instance, field_name)
+        if field:
+            if os.path.isfile(field.path):
+                os.remove(field.path)

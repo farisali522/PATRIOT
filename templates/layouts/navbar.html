@@ -1,50 +1,55 @@
-<nav class="navbar navbar-expand-lg sticky-top"
-    style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(128, 0, 0, 0.08); z-index: 1050;">
+<nav class="navbar navbar-expand-lg sticky-top">
     <div class="container-fluid px-4">
-        <button class="btn btn-link text-maroon me-3 p-0" onclick="toggleSidebar()"
-            style="color: var(--primary-maroon);">
+        <button class="btn btn-link text-white me-3 p-0 shadow-none" onclick="toggleSidebar()">
             <i class="fas fa-bars fa-lg"></i>
         </button>
-        <a class="navbar-brand fw-bold" href="{% url 'landing' %}"
-            style="letter-spacing: 2px; color: var(--primary-maroon);">PATRIOT</a>
+        <a class="navbar-brand text-white d-flex align-items-center" href="{% url 'landing' %}">
+            <i class="fas fa-shield-alt me-2 text-warning"></i>PATRIOT
+        </a>
 
         <div class="ms-auto d-flex align-items-center">
-            <!-- Access Mode Switcher (Temporary for Demo) -->
-            <div class="dropdown me-2 me-md-3">
+            <!-- Access Mode Switcher -->
+            <div class="dropdown me-3">
                 <button
-                    class="btn btn-sm {% if request.session.active_role == 'DCO' %}btn-danger{% elif request.session.active_role == 'COMMANDER' %}btn-primary{% else %}btn-success{% endif %} dropdown-toggle shadow-sm rounded-pill px-2 px-md-3"
-                    type="button" data-bs-toggle="dropdown" style="font-size: 11px; font-weight: 700;">
-                    <i class="fas fa-shield-alt me-1"></i>
-                    <span class="d-none d-md-inline">MODE: </span>{{ request.session.active_role|default:"DCO" }}
+                    class="btn btn-sm {% if request.session.active_role == 'DCO' %}btn-danger{% elif request.session.active_role == 'COMMANDER' %}btn-primary{% else %}btn-success{% endif %} dropdown-toggle shadow-sm rounded-pill px-3 border-white border-1"
+                    type="button" data-bs-toggle="dropdown" style="font-size: 10px; font-weight: 800; border-style: solid;">
+                    <i class="fas fa-id-badge me-1"></i>
+                    <span class="d-none d-md-inline">{{ request.session.active_role|default:"DCO" }} MODE</span>
+                    <span class="d-md-none">{{ request.session.active_role|default:"DCO" }}</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 200px;">
-                    <li class="px-3 py-2 small fw-bold text-muted text-uppercase" style="font-size: 10px;">Ganti Akses
-                        Demo</li>
-                    <li><a class="dropdown-item py-2" href="{% url 'switch_role' 'DCO' %}"><i
-                                class="fas fa-satellite text-danger me-2"></i> DCO</a></li>
-                    <li><a class="dropdown-item py-2" href="{% url 'switch_role' 'COMMANDER' %}"><i
-                                class="fas fa-user-shield text-primary me-2"></i> Commander</a></li>
-                    <li><a class="dropdown-item py-2" href="{% url 'switch_role' 'CADRE' %}"><i
-                                class="fas fa-users text-success me-2"></i> Cadre</a></li>
+                <ul class="dropdown-menu dropdown-menu-end py-2" style="min-width: 200px;">
+                    <li class="px-3 py-2 small fw-bold text-muted text-uppercase" style="font-size: 10px;">Ganti Akses</li>
+                    <li><a class="dropdown-item py-2 d-flex align-items-center" href="{% url 'switch_role' 'DCO' %}">
+                        <div class="bg-danger-soft text-danger rounded-circle p-2 me-2" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-satellite small"></i></div> 
+                        <span class="fw-bold">DCO</span>
+                    </a></li>
+                    <li><a class="dropdown-item py-2 d-flex align-items-center" href="{% url 'switch_role' 'COMMANDER' %}">
+                        <div class="bg-primary-soft text-primary rounded-circle p-2 me-2" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-user-shield small"></i></div>
+                        <span class="fw-bold">Commander</span>
+                    </a></li>
+                    <li><a class="dropdown-item py-2 d-flex align-items-center" href="{% url 'switch_role' 'CADRE' %}">
+                        <div class="bg-success-soft text-success rounded-circle p-2 me-2" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-users small"></i></div>
+                        <span class="fw-bold">Cadre</span>
+                    </a></li>
                 </ul>
             </div>
 
+            <!-- Profile Dropdown -->
             <div class="dropdown">
-                <button class="btn btn-outline-maroon btn-sm dropdown-toggle rounded-pill px-2 px-md-3" type="button"
-                    data-bs-toggle="dropdown"
-                    style="border-color: var(--primary-maroon); color: var(--primary-maroon); font-size: 11px; font-weight: 600;">
-                    <i class="fas fa-user-circle me-md-1"></i>
-                    <span class="d-none d-md-inline">Admin_Faris</span>
+                <button class="btn btn-link text-white dropdown-toggle d-flex align-items-center p-0 shadow-none" 
+                    type="button" data-bs-toggle="dropdown">
+                    <div class="bg-white text-maroon rounded-circle me-md-2 d-flex align-items-center justify-content-center shadow-sm"
+                        style="width: 35px; height: 35px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="d-none d-md-inline fw-bold small text-uppercase ls-1">Admin_Faris</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="background: #ffffff;">
-                    <li class="d-md-none px-3 py-2 small fw-bold border-bottom mb-1">Admin_Faris</li>
-                    <li><a class="dropdown-item text-dark" href="#"><i class="fas fa-user me-2"></i> Profil</a></li>
-                    <li><a class="dropdown-item text-dark" href="{% url 'ubah_password' %}"><i class="fas fa-key me-2"></i> Password</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'login' %}"><i
-                                class="fas fa-sign-out-alt me-2"></i> Keluar</a></li>
+                <ul class="dropdown-menu dropdown-menu-end py-2" style="min-width: 180px;">
+                    <li><a class="dropdown-item py-2" href="{% url 'ubah_password' %}"><i class="fas fa-key me-2 text-muted"></i>Password</a></li>
+                    <li><hr class="dropdown-divider mx-3"></li>
+                    <li><a class="dropdown-item py-2 text-danger fw-bold" href="{% url 'login' %}">
+                        <i class="fas fa-sign-out-alt me-2"></i> Keluar
+                    </a></li>
                 </ul>
             </div>
         </div>

@@ -1,0 +1,68 @@
+<!-- Modal Foto Bukti (Multiple) -->
+<div class="modal fade" id="modalBukti{{ lap.id }}" tabindex="-1" aria-hidden="true" style="z-index: 2000;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content border-0 shadow rounded-4 text-start">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark" style="font-size: 0.9rem;">BUKTI LAPORAN: {{ lap.user.username }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3">
+                    {% if lap.bukti_like %}
+                    <div class="col-md-6 text-center">
+                        <div class="fw-bold small text-danger mb-2 bg-light p-1 rounded">BUKTI LIKE</div>
+                        <img src="{{ lap.bukti_like.url }}" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 500px;">
+                    </div>
+                    {% endif %}
+                    {% if lap.bukti_komen %}
+                    <div class="col-md-6 text-center">
+                        <div class="fw-bold small text-primary mb-2 bg-light p-1 rounded">BUKTI KOMEN</div>
+                        <img src="{{ lap.bukti_komen.url }}" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 500px;">
+                    </div>
+                    {% endif %}
+                    {% if lap.bukti_share %}
+                    <div class="col-md-6 text-center">
+                        <div class="fw-bold small text-success mb-2 bg-light p-1 rounded">BUKTI SHARE</div>
+                        <img src="{{ lap.bukti_share.url }}" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 500px;">
+                    </div>
+                    {% endif %}
+                    {% if lap.bukti_follow %}
+                    <div class="col-md-6 text-center">
+                        <div class="fw-bold small text-info mb-2 bg-light p-1 rounded">BUKTI FOLLOW</div>
+                        <img src="{{ lap.bukti_follow.url }}" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 500px;">
+                    </div>
+                    {% endif %}
+                    {% if lap.bukti_reply %}
+                    <div class="col-md-6 text-center">
+                        <div class="fw-bold small text-secondary mb-2 bg-light p-1 rounded">BUKTI REPLY</div>
+                        <img src="{{ lap.bukti_reply.url }}" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 500px;">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tolak dengan Catatan -->
+<div class="modal fade" id="modalTolak{{ lap.id }}" tabindex="-1" aria-hidden="true" style="z-index: 2000;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4 text-start">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-danger" style="font-size: 0.9rem;">ALASAN PENOLAKAN</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'proses_verifikasi_laporan' lap.id 'reject' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">Tuliskan alasan penolakan agar personel memahami kesalahannya.</p>
+                    <textarea name="catatan" class="form-control rounded-3" rows="3" placeholder="Contoh: Screenshot tidak memperlihatkan ikon Like..." required></textarea>
+                </div>
+                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" style="font-size: 0.75rem;">Batal</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4" style="font-size: 0.75rem;">Kirim & Tolak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

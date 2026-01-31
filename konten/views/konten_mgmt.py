@@ -27,7 +27,11 @@ def tambah_konten(request):
     if request.method == 'POST':
         judul = request.POST.get('judul')
         platform = request.POST.get('platform')
-        link_konten = request.POST.get('link_konten')
+        link_konten = request.POST.get('link_konten', '').strip()
+        
+        # Normalisasi Link: Pastikan ada protokol agar tidak menjadi relative link (penyebab 404)
+        if link_konten and not link_konten.startswith(('http://', 'https://')):
+            link_konten = f'https://{link_konten}'
         kategori_id = request.POST.get('kategori')
         nama_kategori_baru = request.POST.get('nama_kategori_baru')
         deskripsi = request.POST.get('deskripsi')

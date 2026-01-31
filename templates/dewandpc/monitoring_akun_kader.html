@@ -1,0 +1,93 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Monitoring Akun Cadre - PATRIOT{% endblock %}
+
+{% block body_class %}has-sidebar{% endblock %}
+
+{% block sidebar %}
+{% include 'layouts/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4"
+        role="alert">
+        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-times-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h7 class="fw-bold mb-0 text-maroon ls-1">MONITORING AKUN CADRE</h7>
+        </div>
+    </div>
+
+    <!-- Tabel Monitoring Cadre -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center border-bottom">
+            <h6 class="fw-bold mb-0 text-dark text-uppercase ls-1" style="font-size: 12px;">
+                <i class="fas fa-users text-maroon me-2"></i>DAFTAR AKUN CADRE
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0">CADRE</th>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0">PLATFORM</th>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0">USERNAME</th>
+                            <th class="px-4 py-3 text-secondary small fw-bold border-0 text-end">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for akun in akun_cadre_list %}
+                        <tr>
+                            <td class="px-4 py-3">
+                                <div class="fw-bold text-dark">{{ akun.owner.username }}</div>
+                                <span class="text-muted small">Anggota Wilayah</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <i class="fab fa-{{ akun.get_platform_display|lower }} text-maroon fs-5"></i>
+                                <span class="ms-2 small">{{ akun.get_platform_display }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="fw-bold text-dark">{{ akun.username }}</div>
+                                <a href="{{ akun.link_profil }}" target="_blank"
+                                    class="text-maroon small text-decoration-none">Lihat Profil <i
+                                        class="fas fa-external-link-alt ms-1" style="font-size: 0.8em;"></i></a>
+                            </td>
+                            <td class="px-4 py-3 text-end">
+                                {% if akun.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark rounded-pill px-3" style="font-size: 0.6rem;">VERIFIKASI</span>
+                                {% elif akun.status == 'VERIFIED' %}
+                                <span class="badge bg-success rounded-pill px-3" style="font-size: 0.6rem;">VERIFIED</span>
+                                {% else %}
+                                <span class="badge bg-danger rounded-pill px-3" style="font-size: 0.6rem;">DITOLAK</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">Belum ada data akun Cadre.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-maroon { color: #800000; }
+    .ls-1 { letter-spacing: 1px; }
+    .bg-maroon-soft { background-color: rgba(128, 0, 0, 0.08); }
+</style>
+{% endblock %}

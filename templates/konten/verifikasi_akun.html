@@ -13,8 +13,8 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h7 class="fw-bold mb-0 text-maroon ls-1">VERIFIKASI AKUN MEDSOS</h7>
-            <p class="text-muted mb-0" style="font-size: 0.8rem;">Tinjau dan verifikasi pendaftaran akun dari Commander Wilayah.</p>
+            <h7 class="fw-bold mb-0 text-maroon ls-1">VERIFIKASI AKUN PERSONEL</h7>
+            <p class="text-muted mb-0" style="font-size: 0.8rem;">Tinjau dan verifikasi pendaftaran akun dari Commander maupun Kader.</p>
         </div>
     </div>
 
@@ -29,7 +29,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">COMMANDER</th>
+                            <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">PERSONEL / ROLE</th>
                             <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">PLATFORM</th>
                             <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">AKUN</th>
                             <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">TANGGAL</th>
@@ -41,7 +41,7 @@
                         <tr>
                             <td class="px-4 py-3">
                                 <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ akun.owner.username }}</div>
-                                <span class="text-muted" style="font-size: 0.7rem;">ID: #{{ akun.owner.id }}</span>
+                                <span class="badge {% if akun.role_pemegang == 'COMMANDER' %}bg-primary-soft text-primary{% else %}bg-secondary-soft text-secondary{% endif %} px-2" style="font-size: 10px;">{{ akun.role_pemegang }}</span>
                             </td>
                             <td class="px-4 py-3">
                                 <i class="fab fa-{{ akun.get_platform_display|lower }} text-maroon" style="font-size: 1rem;"></i>
@@ -59,14 +59,40 @@
                             </td>
                             <td class="px-4 py-3 text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold"
-                                        style="font-size: 0.7rem;">
-                                        <i class="fas fa-check me-1"></i> Verifikasi
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold"
-                                        style="font-size: 0.7rem;">
+                                    <form action="{% url 'proses_verifikasi_akun' akun.id 'approve' %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold"
+                                            style="font-size: 0.7rem;">
+                                            <i class="fas fa-check me-1"></i> Verifikasi
+                                        </button>
+                                    </form>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold"
+                                        style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#modalTolak{{ akun.id }}">
                                         <i class="fas fa-times me-1"></i> Tolak
                                     </button>
+                                </div>
+
+                                <!-- Modal Tolak dengan Catatan -->
+                                <div class="modal fade" id="modalTolak{{ akun.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow rounded-4 text-start">
+                                            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                                                <h5 class="modal-title fw-bold text-danger" style="font-size: 0.9rem;">ALASAN PENOLAKAN</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{% url 'proses_verifikasi_akun' akun.id 'reject' %}" method="POST">
+                                                {% csrf_token %}
+                                                <div class="modal-body p-4">
+                                                    <p class="text-muted small mb-3">Berikan alasan mengapa akun <strong>{{ akun.username }}</strong> ditolak agar personel dapat memperbaikinya.</p>
+                                                    <textarea name="catatan" class="form-control rounded-3" rows="3" placeholder="Contoh: Link profil tidak valid atau akun dikunci (privat)..." required></textarea>
+                                                </div>
+                                                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                                                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" style="font-size: 0.75rem;">Batal</button>
+                                                    <button type="submit" class="btn btn-danger rounded-pill px-4" style="font-size: 0.75rem;">Kirim & Tolak</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

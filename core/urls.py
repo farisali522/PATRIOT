@@ -17,6 +17,7 @@ urlpatterns = [
     path('tugas/', views.daftar_tugas, name='daftar_tugas'),
     path('switch-role/<str:role_name>/', views.switch_role, name='switch_role'),
     path('manajemen-akun-medsos/', views.manajemen_akun_medsos, name='akun_medsos'),
+    path('monitoring-akun-kader/', views.monitoring_akun_kader, name='monitoring_akun_kader'),
     path('verifikasi-akun/', views.verifikasi_akun_medsos, name='verifikasi_akun'),
     path('verifikasi-akun/proses/<int:akun_id>/<str:action>/', views.proses_verifikasi_akun, name='proses_verifikasi_akun'),
     path('sop/', views.sop_view, name='sop'),
@@ -24,6 +25,9 @@ urlpatterns = [
     path('biodata-kader/', views.biodata_kader, name='biodata_kader'),
     path('misi/', views.misi_kader, name='misi_kader'),
     path('misi/konfirmasi/<int:tugas_id>/', views.konfirmasi_misi, name='konfirmasi_misi'),
+    path('edit-akun-medsos/<int:akun_id>/', views.edit_akun_medsos, name='edit_akun_medsos'),
+    path('verifikasi-laporan/', views.verifikasi_laporan_misi, name='verifikasi_laporan'),
+    path('verifikasi-laporan/proses/<int:riwayat_id>/<str:action>/', views.proses_verifikasi_laporan, name='proses_verifikasi_laporan'),
     path('password/', views.ubah_password, name='ubah_password'),
 ]
 

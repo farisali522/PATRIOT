@@ -95,7 +95,7 @@
         <div class="col-12 col-md-6 col-xl-4">
             {% with platform=item.tugas.konten.platform %}
             <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative mission-card platform-{{ platform|lower }} 
-                {% if item.status_akun != 'VERIFIED' or item.is_done %} grayscale-disabled opacity-75 {% endif %}">
+                {% if item.status_akun != 'VERIFIED' or item.is_done and item.pengerjaan_status != 'REJECTED' %} grayscale-disabled opacity-75 {% endif %}">
                 
                 <!-- Platform Theme Bar (Top) -->
                 <div class="platform-header-bar"></div>
@@ -124,16 +124,32 @@
                     {% endif %}
                 </div>
 
-                <div class="card-body p-4 pt-5">
+                <div class="card-body p-4 pt-5 d-flex flex-column">
                     <!-- Area Konten -->
-                    <div class="mb-3 mt-3">
+                    <div class="mb-3 mt-3 flex-grow-1">
                         <h6 class="fw-bold text-dark mb-1 line-clamp-2" style="font-size: 0.9rem;">{{ item.tugas.konten.judul|upper }}</h6>
                         <div class="text-muted border-top pt-2 d-flex justify-content-between align-items-center" style="font-size: 0.65rem;">
                             <div><i class="fas fa-calendar-alt me-1"></i> Batas: {{ item.tugas.tanggal_selesai|date:"d M Y"}}, 23:59 WIB</div>
                             {% if item.is_done %}
-                            <span class="badge bg-success text-white rounded-pill px-2 py-1" style="font-size: 0.65rem;"><i class="fas fa-check me-1"></i> SELESAI</span>
+                                {% if item.pengerjaan_status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark rounded-pill px-2 py-1" style="font-size: 0.65rem;"><i class="fas fa-clock me-1"></i> VERIFIKASI PENDING</span>
+                                {% elif item.pengerjaan_status == 'APPROVED' %}
+                                <span class="badge bg-success text-white rounded-pill px-2 py-1" style="font-size: 0.65rem;"><i class="fas fa-check-double me-1"></i> MISI DISETUJUI</span>
+                                {% elif item.pengerjaan_status == 'REJECTED' %}
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-1" style="font-size: 0.65rem;"><i class="fas fa-exclamation-circle me-1"></i> MISI DITOLAK</span>
+                                {% endif %}
                             {% endif %}
                         </div>
+
+                        {% if item.pengerjaan_status == 'REJECTED' and item.catatan %}
+                        <!-- Alasan Penolakan di Card -->
+                        <div class="mt-2 p-2 rounded-4 bg-danger-subtle border border-danger-subtle shadow-sm">
+                            <div class="fw-bold text-danger extra-small mb-1"><i class="fas fa-exclamation-triangle me-1"></i> ALASAN DCO:</div>
+                            <p class="text-dark mb-0 italic" style="font-size: 0.72rem; line-height: 1.3;">
+                                "{{ item.catatan }}"
+                            </p>
+                        </div>
+                        {% endif %}
 
                         <!-- JENIS TUGAS -->
                         <div class="mt-3 mb-3">
@@ -149,7 +165,7 @@
 
                         <!-- INSTRUKSI KHUSUS -->
                         <div class="pt-2 border-top">
-                            <p class="text-muted mb-0 italic" style="font-size: 0.75rem; line-height: 1.4;">
+                            <p class="text-muted mb-0 italic line-clamp-3" style="font-size: 0.75rem; line-height: 1.4;">
                                 <i class="fas fa-info-circle me-1 text-maroon"></i>
                                 <strong>Petunjuk:</strong>
                                 {{ item.tugas.instruksi|default:'Lakukan sesuai jenis tugas di atas.'}}
@@ -165,17 +181,25 @@
                             </a>
 
                             {% if item.is_done %}
-                            <button class="btn btn-sm btn-success rounded-pill py-2 fw-bold shadow-sm" disabled style="font-size: 0.7rem;">
-                                <i class="fas fa-check-circle me-2"></i> SUDAH DILAPORKAN
-                            </button>
-                            {% else %}
-                            <form action="{% url 'konfirmasi_misi' item.tugas.id %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="akun_id" value="{{ item.akun.id }}">
-                                <button type="submit" class="btn btn-sm btn-platform rounded-pill py-2 fw-bold shadow-sm w-100" style="font-size: 0.7rem;">
-                                    <i class="fas fa-check-double me-2"></i> KONFIRMASI SELESAI
+                                {% if item.pengerjaan_status == 'PENDING' %}
+                                <button class="btn btn-sm btn-warning text-dark rounded-pill py-2 fw-bold shadow-sm" disabled style="font-size: 0.7rem;">
+                                    <i class="fas fa-clock me-2"></i> SEDANG DIVERIFIKASI
                                 </button>
-                            </form>
+                                {% elif item.pengerjaan_status == 'APPROVED' %}
+                                <button class="btn btn-sm btn-success rounded-pill py-2 fw-bold shadow-sm" disabled style="font-size: 0.7rem;">
+                                    <i class="fas fa-check-circle me-2"></i> MISI SELESAI
+                                </button>
+                                {% elif item.pengerjaan_status == 'REJECTED' %}
+                                <button type="button" class="btn btn-sm btn-danger rounded-pill py-2 fw-bold shadow-sm w-100" 
+                                    style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#modalKonfirmasi{{ item.tugas.id }}{{ item.akun.id }}">
+                                    <i class="fas fa-redo me-2"></i> PERBAIKI LAPORAN
+                                </button>
+                                {% endif %}
+                            {% else %}
+                            <button type="button" class="btn btn-sm btn-platform rounded-pill py-2 fw-bold shadow-sm w-100" 
+                                style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#modalKonfirmasi{{ item.tugas.id }}{{ item.akun.id }}">
+                                <i class="fas fa-check-double me-2"></i> KONFIRMASI SELESAI
+                            </button>
                             {% endif %}
                         {% else %}
                             <!-- Kasus Akun PENDING, REJECTED, atau BELUM DAFTAR -->
@@ -205,6 +229,105 @@
                     </div>
                 </div>
             </div>
+            <!-- End Mission Card -->
+
+            {% if item.status_akun == 'VERIFIED' %}
+                {% if not item.is_done or item.pengerjaan_status == 'REJECTED' %}
+            <!-- Modal Konfirmasi Misi (Diletakkan di luar card agar tidak berkedip) -->
+            <div class="modal fade" id="modalKonfirmasi{{ item.tugas.id }}{{ item.akun.id }}" tabindex="-1" aria-hidden="true" style="z-index: 1100;">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow rounded-4 text-dark">
+                        <div class="modal-header border-0 pb-0 px-4 pt-4 text-start">
+                            <h5 class="modal-title fw-bold text-maroon" style="font-size: 0.9rem;">
+                                {% if item.pengerjaan_status == 'REJECTED' %}PERBAIKI LAPORAN{% else %}KONFIRMASI PENYELESAIAN{% endif %}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="{% url 'konfirmasi_misi' item.tugas.id %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-body p-4 text-start">
+                                <input type="hidden" name="akun_id" value="{{ item.akun.id }}">
+                                
+                                {% if item.pengerjaan_status == 'REJECTED' %}
+                                    {% if item.tugas.riwayatmisi_set.last.catatan_verifikator %}
+                                <!-- Alasan Penolakan -->
+                                <div class="alert alert-danger border-0 rounded-3 mb-4 p-3">
+                                    <h6 class="fw-bold small text-uppercase mb-1"><i class="fas fa-exclamation-triangle me-1"></i> Alasan Penolakan:</h6>
+                                    <p class="small mb-0 fst-italic">"{{ item.tugas.riwayatmisi_set.last.catatan_verifikator }}"</p>
+                                </div>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                <div class="mb-4 text-center">
+                                    <div class="small text-muted mb-2">Akun yang digunakan:</div>
+                                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
+                                        <i class="fas fa-user-circle me-1"></i> {{ item.akun.username }}
+                                    </span>
+                                </div>
+                                                <div class="mb-3">
+                                    <label class="form-label fw-bold small">Unggah Bukti Pengerjaan</label>
+                                    <div class="row g-2 text-start">
+                                        {% if item.tugas.is_like %}
+                                        <div class="col-12">
+                                            <div class="p-2 border rounded-3 bg-light">
+                                                <label class="small fw-bold text-danger mb-1"><i class="fas fa-heart me-1"></i> BUKTI LIKE</label>
+                                                <input type="file" name="bukti_like" class="form-control form-control-sm" accept="image/*" required>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if item.tugas.is_komen %}
+                                        <div class="col-12">
+                                            <div class="p-2 border rounded-3 bg-light">
+                                                <label class="small fw-bold text-primary mb-1"><i class="fas fa-comment me-1"></i> BUKTI KOMEN</label>
+                                                <input type="file" name="bukti_komen" class="form-control form-control-sm" accept="image/*" required>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if item.tugas.is_share %}
+                                        <div class="col-12">
+                                            <div class="p-2 border rounded-3 bg-light">
+                                                <label class="small fw-bold text-success mb-1"><i class="fas fa-share me-1"></i> BUKTI SHARE</label>
+                                                <input type="file" name="bukti_share" class="form-control form-control-sm" accept="image/*" required>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if item.tugas.is_follow %}
+                                        <div class="col-12">
+                                            <div class="p-2 border rounded-3 bg-light">
+                                                <label class="small fw-bold text-info mb-1"><i class="fas fa-user-plus me-1"></i> BUKTI FOLLOW</label>
+                                                <input type="file" name="bukti_follow" class="form-control form-control-sm" accept="image/*" required>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if item.tugas.is_reply %}
+                                        <div class="col-12">
+                                            <div class="p-2 border rounded-3 bg-light">
+                                                <label class="small fw-bold text-secondary mb-1"><i class="fas fa-reply me-1"></i> BUKTI REPLY</label>
+                                                <input type="file" name="bukti_reply" class="form-control form-control-sm" accept="image/*" required>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted mt-2 d-block text-center" style="font-size: 0.65rem;">
+                                        <i class="fas fa-info-circle me-1 text-maroon"></i> Unggah screenshot terpisah untuk setiap tindakan.
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" style="font-size: 0.75rem;">Batal</button>
+                                <button type="submit" class="btn btn-success rounded-pill px-4" style="font-size: 0.75rem;">Kirim Laporan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
             {% endwith %}
         </div>
         {% empty %}
@@ -232,7 +355,20 @@
     .mission-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important; }
     
     .z-index-1 { z-index: 10; }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-2 { 
+        display: -webkit-box; 
+        -webkit-line-clamp: 2; 
+        line-clamp: 2;
+        -webkit-box-orient: vertical; 
+        overflow: hidden; 
+    }
+    .line-clamp-3 { 
+        display: -webkit-box; 
+        -webkit-line-clamp: 3; 
+        line-clamp: 3;
+        -webkit-box-orient: vertical; 
+        overflow: hidden; 
+    }
     .grayscale-disabled { filter: grayscale(100%); }
     .extra-small { font-size: 0.65rem; }
     .ls-1 { letter-spacing: 1px; }

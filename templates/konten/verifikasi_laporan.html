@@ -1,0 +1,232 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Verifikasi Laporan Misi - PATRIOT{% endblock %}
+
+{% block body_class %}has-sidebar{% endblock %}
+
+{% block sidebar %}
+{% include 'layouts/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h7 class="fw-bold mb-0 text-maroon ls-1">VERIFIKASI LAPORAN MISI</h7>
+            <p class="text-muted mb-0" style="font-size: 0.8rem;">Tinjau bukti screenshot pengerjaan misi dari seluruh personel.</p>
+        </div>
+    </div>
+
+    <!-- Tab Navigasi -->
+    <ul class="nav nav-tabs border-0 mb-3" id="verifTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold text-dark border-0 px-4 py-2" id="antrean-tab" data-bs-toggle="tab" 
+                data-bs-target="#antrean" type="button" role="tab" style="font-size: 0.8rem; border-radius: 10px 10px 0 0;">
+                ANTREAN ({{ laporan_pending.count }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-muted border-0 px-4 py-2" id="selesai-tab" data-bs-toggle="tab" 
+                data-bs-target="#selesai" type="button" role="tab" style="font-size: 0.8rem; border-radius: 10px 10px 0 0;">
+                RIWAYAT SELESAI
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="verifTabContent">
+        <!-- Tab Antrean -->
+        <div class="tab-pane fade show active" id="antrean" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">PERSONEL</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">MISI / JUDUL</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">AKUN</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">BUKTI FOTO</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0 text-end" style="font-size: 0.7rem; letter-spacing: 0.5px;">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lap in laporan_pending %}
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ lap.user.username }}</div>
+                                        <span class="badge bg-secondary-soft text-secondary px-2" style="font-size: 10px;">{{ lap.user.profile.role }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ lap.tugas.konten.judul|truncatechars:30 }}</div>
+                                        <div class="d-flex align-items-center gap-1 mt-1">
+                                            {% if lap.tugas.is_like %}<span class="badge bg-danger px-1" style="font-size: 8px;">LIKE</span>{% endif %}
+                                            {% if lap.tugas.is_komen %}<span class="badge bg-primary px-1" style="font-size: 8px;">KOMEN</span>{% endif %}
+                                            <a href="{{ lap.tugas.konten.link_konten }}" target="_blank" 
+                                               class="btn-visit ms-1 text-decoration-none d-inline-flex align-items-center" 
+                                               title="Buka Link Konten">
+                                                <i class="fas fa-paper-plane me-1"></i> CEK TKP
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ lap.akun_digunakan.username }}</div>
+                                        <span class="text-muted" style="font-size: 0.7rem;">{{ lap.akun_digunakan.platform }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex flex-wrap gap-1" style="max-width: 180px;">
+                                            {% if lap.bukti_like %}
+                                            <img src="{{ lap.bukti_like.url }}" class="rounded border shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" title="Like">
+                                            {% endif %}
+                                            {% if lap.bukti_komen %}
+                                            <img src="{{ lap.bukti_komen.url }}" class="rounded border shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" title="Komen">
+                                            {% endif %}
+                                            {% if lap.bukti_share %}
+                                            <img src="{{ lap.bukti_share.url }}" class="rounded border shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" title="Share">
+                                            {% endif %}
+                                            {% if lap.bukti_follow %}
+                                            <img src="{{ lap.bukti_follow.url }}" class="rounded border shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" title="Follow">
+                                            {% endif %}
+                                            {% if lap.bukti_reply %}
+                                            <img src="{{ lap.bukti_reply.url }}" class="rounded border shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" title="Reply">
+                                            {% endif %}
+                                        </div>
+                                        <a href="#" class="extra-small text-primary text-decoration-none mt-1 d-block fw-bold" data-bs-toggle="modal" data-bs-target="#modalBukti{{ lap.id }}">
+                                            <i class="fas fa-images me-1"></i> Lihat Semua Bukti
+                                        </a>
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <form action="{% url 'proses_verifikasi_laporan' lap.id 'approve' %}" method="POST" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold"
+                                                    style="font-size: 0.7rem;">
+                                                    <i class="fas fa-check me-1"></i> Terima
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold"
+                                                style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#modalTolak{{ lap.id }}">
+                                                <i class="fas fa-times me-1"></i> Tolak
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <i class="fas fa-check-double fa-3x text-light mb-3"></i>
+                                        <p class="text-muted mb-0" style="font-size: 0.85rem;">Tidak ada laporan misi yang perlu diverifikasi.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Selesai -->
+        <div class="tab-pane fade" id="selesai" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">PERSONEL</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">MISI</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">WAKTU VERIF</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0" style="font-size: 0.7rem; letter-spacing: 0.5px;">STATUS</th>
+                                    <th class="px-4 py-3 text-secondary fw-bold border-0 text-end" style="font-size: 0.7rem; letter-spacing: 0.5px;">BUKTI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lap in laporan_selesai %}
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ lap.user.username }}</div>
+                                        <span class="text-muted" style="font-size: 0.7rem;">{{ lap.akun_digunakan.platform }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold text-dark" style="font-size: 0.8rem;">{{ lap.tugas.konten.judul|truncatechars:25 }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="text-dark" style="font-size: 0.7rem;">{{ lap.tanggal_verifikasi|date:"d M Y, H:i" }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        {% if lap.status == 'APPROVED' %}
+                                        <span class="badge bg-success-soft text-success px-2" style="font-size: 9px;">DISETUJUI</span>
+                                        {% else %}
+                                        <span class="badge bg-danger-soft text-danger px-2" style="font-size: 9px;">DITOLAK</span>
+                                        <div class="extra-small text-muted mt-1">{{ lap.catatan_verifikator|truncatechars:20 }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <button type="button" class="btn btn-sm btn-light rounded-pill px-3" 
+                                            style="font-size: 0.65rem;" data-bs-toggle="modal" data-bs-target="#modalBukti{{ lap.id }}">
+                                            Detail
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <p class="text-muted mb-0" style="font-size: 0.85rem;">Belum ada riwayat verifikasi.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Container (Di luar table-responsive agar lancar di HP) -->
+{% for lap in laporan_pending %}
+    {% include 'konten/components/modal_verifikasi.html' with lap=lap %}
+{% endfor %}
+{% for lap in laporan_selesai %}
+    {% include 'konten/components/modal_verifikasi.html' with lap=lap %}
+{% endfor %}
+
+<style>
+    .text-maroon {
+        color: #800000;
+    }
+
+    .bg-secondary-soft { background-color: rgba(108, 117, 125, 0.1); }
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+    
+    .nav-tabs .nav-link.active {
+        background-color: transparent !important;
+        border-bottom: 3px solid #800000 !important;
+        color: #800000 !important;
+    }
+    .text-secondary { color: #6c757d; }
+    .extra-small { font-size: 0.65rem; }
+    .ls-1 { letter-spacing: 1px; }
+
+    .btn-visit {
+        font-size: 8px;
+        font-weight: 800;
+        color: #0d6efd;
+        background: rgba(13, 110, 253, 0.08);
+        padding: 2px 8px;
+        border-radius: 50px;
+        border: 1px solid rgba(13, 110, 253, 0.2);
+        transition: all 0.2s ease;
+    }
+
+    .btn-visit:hover {
+        background: #0d6efd;
+        color: white;
+        box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}

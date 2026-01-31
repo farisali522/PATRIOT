@@ -107,6 +107,10 @@
                 class="sidebar-nav-link {% if request.resolver_match.url_name == 'verifikasi_akun' %}active{% endif %}">
                 <i class="fas fa-user-check"></i> Verifikasi Aset
             </a>
+            <a href="{% url 'verifikasi_laporan' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'verifikasi_laporan' %}active{% endif %}">
+                <i class="fas fa-clipboard-check"></i> Verifikasi Laporan
+            </a>
             {% endif %}
 
             <!-- Commander Section: Only show if COMMANDER mode -->
@@ -114,6 +118,10 @@
             <a href="{% url 'akun_medsos' %}"
                 class="sidebar-nav-link {% if request.resolver_match.url_name == 'akun_medsos' %}active{% endif %}">
                 <i class="fas fa-id-card-alt"></i> Manajemen Akun
+            </a>
+            <a href="{% url 'monitoring_akun_kader' %}"
+                class="sidebar-nav-link {% if request.resolver_match.url_name == 'monitoring_akun_kader' %}active{% endif %}">
+                <i class="fas fa-users-cog"></i> Monitoring Bawahan
             </a>
             {% endif %}
 

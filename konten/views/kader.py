@@ -47,11 +47,16 @@ def akun_medsos_kader(request):
         'akun_list': akun_list,
         'biodata_lengkap': biodata_lengkap,
     }
-    return render(request, 'kader/akun_medsos.html', context)
+    return render(request, 'kader/akun_medsos_kader.html', context)
 
-# Halaman Daftar Misi (Role: Cadre)
 @login_required
 def misi_kader(request):
+    # Proteksi: Hanya role CADRE yang boleh akses halaman misi
+    active_role = request.session.get('active_role')
+    if active_role != 'CADRE':
+        messages.warning(request, "Halaman Misi hanya tersedia untuk mode Kader.")
+        return redirect('dashboard_uploader')
+
     today = timezone.localdate()
     # Ambil misi (tugas) yang aktif dan belum kadaluarsa
     tugas_aktif = TugasKonten.objects.filter(
@@ -60,8 +65,8 @@ def misi_kader(request):
         tanggal_selesai__gte=today
     ).select_related('konten').order_by('-id')
     
-    # Ambil semua akun milik user ini
-    user_accounts = AkunMedsos.objects.filter(owner=request.user)
+    # Ambil HANYA akun milik CADRE (Bukan akun Commander)
+    user_accounts = AkunMedsos.objects.filter(owner=request.user, role_pemegang='CADRE')
     
     # Ambil riwayat pengerjaan user ini untuk misi-misi yang aktif
     riwayat_user = RiwayatMisi.objects.filter(user=request.user, tugas__in=tugas_aktif)
@@ -80,22 +85,28 @@ def misi_kader(request):
     tugas_per_akun = []
     
     for t in tugas_aktif:
-        # Cari semua akun (apapun statusnya) yang cocok dengan platform tugas ini
+        # Cari akun CADRE yang cocok dengan platform tugas ini
         all_matching_accounts = user_accounts.filter(platform=t.konten.platform)
         
         if all_matching_accounts.exists():
             # Jika punya akun, buatkan 1 kartu untuk SETIAP akun yang terdaptar
+            # Ambil pengerjaan misi untuk akun ini (jika ada)
             for akun in all_matching_accounts:
-                is_done = RiwayatMisi.objects.filter(tugas=t, akun_digunakan=akun).exists()
+                pengerjaan = RiwayatMisi.objects.filter(tugas=t, akun_digunakan=akun).last()
+                is_done = pengerjaan is not None
+                pengerjaan_status = pengerjaan.status if pengerjaan else None
+                
                 tugas_per_akun.append({
                     'id_tugas': t.id,
                     'tugas': t,
                     'akun': akun,
                     'is_done': is_done,
+                    'pengerjaan_status': pengerjaan_status,
+                    'catatan': pengerjaan.catatan_verifikator if pengerjaan else None,
                     'status_akun': akun.status # VERIFIED, PENDING, atau REJECTED
                 })
         else:
-            # Jika BENAR-BENAR belum daftar akun sama sekali di platform ini
+            # Jika BENAR-BENAR belum daftar akun CADRE di platform ini
             tugas_per_akun.append({
                 'id_tugas': t.id,
                 'tugas': t,
@@ -105,12 +116,7 @@ def misi_kader(request):
                 'status_akun': 'NONE'
             })
 
-    # Sorting Logic: Yang aktif (tidak disabled) harus paling atas
-    # Urutan: 
-    # 1. VERIFIED & Belum Selesai (Prioritas Utama)
-    # 2. PENDING (Sedang Berusaha)
-    # 3. VERIFIED & Sudah Selesai (Arsip)
-    # 4. REJECTED / NONE (Bait)
+    # Sorting Logic
     def sort_tugas(item):
         status = item.get('status_akun', 'NONE')
         is_done = item.get('is_done', False)
@@ -125,14 +131,13 @@ def misi_kader(request):
 
     tugas_per_akun.sort(key=sort_tugas)
 
-    # Hitung total poin potensial (poin dari tugas yang belum selesai)
-    total_poin_potensial = sum(item['tugas'].poin for item in tugas_per_akun if item.get('status_akun') == 'VERIFIED' and not item['is_done'])
+    # Hitung total poin potensial (Belum dikerjakan ATAU ditolak)
+    total_poin_potensial = sum(item['tugas'].poin for item in tugas_per_akun if item.get('status_akun') == 'VERIFIED' and (not item['is_done'] or item.get('pengerjaan_status') == 'REJECTED'))
 
-    # List platform unik (untuk filtering atau info tambahan jika perlu)
+    # info tambahan
     verified_platforms = [p.upper() for p in verified_accounts.values_list('platform', flat=True).distinct()]
     pending_platforms = [p.upper() for p in pending_accounts_all.values_list('platform', flat=True).distinct()]
     
-    # Cek kelengkapan biodata dan akun verified
     profile = request.user.profile if hasattr(request.user, 'profile') else None
     biodata_lengkap = profile.is_biodata_complete if profile else False
     has_verified_account = verified_accounts.exists()
@@ -151,6 +156,7 @@ def misi_kader(request):
 def konfirmasi_misi(request, tugas_id):
     if request.method == 'POST':
         akun_id = request.POST.get('akun_id')
+        
         try:
             tugas = TugasKonten.objects.get(id=tugas_id)
             akun = AkunMedsos.objects.get(id=akun_id, owner=request.user, status='VERIFIED')
@@ -160,19 +166,59 @@ def konfirmasi_misi(request, tugas_id):
                 messages.error(request, "Platform akun tidak sesuai dengan misi.")
                 return redirect('misi_kader')
 
+            # Ambil File Bukti
+            b_like = request.FILES.get('bukti_like')
+            b_komen = request.FILES.get('bukti_komen')
+            b_share = request.FILES.get('bukti_share')
+            b_follow = request.FILES.get('bukti_follow')
+            b_reply = request.FILES.get('bukti_reply')
+
+            # Validasi: Setiap tindakan yang diwajibkan HARUS ada bukti fotonya
+            if tugas.is_like and not b_like:
+                messages.error(request, "Bukti LIKE wajib diunggah.")
+                return redirect('misi_kader')
+            if tugas.is_komen and not b_komen:
+                messages.error(request, "Bukti KOMEN wajib diunggah.")
+                return redirect('misi_kader')
+            if tugas.is_share and not b_share:
+                messages.error(request, "Bukti SHARE wajib diunggah.")
+                return redirect('misi_kader')
+            if tugas.is_follow and not b_follow:
+                messages.error(request, "Bukti FOLLOW wajib diunggah.")
+                return redirect('misi_kader')
+            if tugas.is_reply and not b_reply:
+                messages.error(request, "Bukti REPLY wajib diunggah.")
+                return redirect('misi_kader')
+
             # Cek apakah sudah pernah mengerjakan pakai akun ini
-            exists = RiwayatMisi.objects.filter(tugas=tugas, akun_digunakan=akun).exists()
-            if exists:
-                messages.warning(request, f"Akun {akun.username} sudah melaporkan misi ini.")
-            else:
-                RiwayatMisi.objects.create(
-                    user=request.user,
-                    tugas=tugas,
-                    akun_digunakan=akun,
-                    poin_didapat=tugas.poin
-                )
-                messages.success(request, f"Misi berhasil dilaporkan menggunakan akun {akun.username}! +{tugas.poin} Poin.")
-                
+            laporan_lama = RiwayatMisi.objects.filter(tugas=tugas, akun_digunakan=akun).first()
+            
+            if laporan_lama:
+                if laporan_lama.status == 'APPROVED':
+                    messages.warning(request, f"Akun {akun.username} sudah sukses mengerjakan misi ini.")
+                    return redirect('misi_kader')
+                elif laporan_lama.status == 'PENDING':
+                    messages.warning(request, f"Laporan akun {akun.username} sedang dalam antrean verifikasi.")
+                    return redirect('misi_kader')
+                elif laporan_lama.status == 'REJECTED':
+                    # Jika ditolak, hapus laporan lama agar bisa buat baru dengan bukti yang diperbaiki
+                    laporan_lama.delete()
+            
+            # Buat laporan baru (atau pengerjaan ulang dari yang ditolak)
+            RiwayatMisi.objects.create(
+                user=request.user,
+                tugas=tugas,
+                akun_digunakan=akun,
+                bukti_like=b_like,
+                bukti_komen=b_komen,
+                bukti_share=b_share,
+                bukti_follow=b_follow,
+                bukti_reply=b_reply,
+                status='PENDING',
+                poin_didapat=tugas.poin
+            )
+            messages.success(request, f"Laporan berhasil dikirim! Tunggu verifikasi DCO untuk mendapatkan +{tugas.poin} Poin.")
+            
         except (TugasKonten.DoesNotExist, AkunMedsos.DoesNotExist):
             messages.error(request, "Data tidak valid atau akun belum terverifikasi.")
             

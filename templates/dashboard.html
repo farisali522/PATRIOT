@@ -110,10 +110,20 @@
                                     {% endif %}
                                 </div>
                                 <div class="flex-grow-1 text-truncate">
-                                    <span class="small fw-bold text-dark d-block text-truncate" style="font-size: 0.75rem;">
+                                    <span class="small fw-bold text-dark d-block text-truncate mb-1" style="font-size: 0.75rem;">
                                         {{ tugas.konten.judul }}</span>
-                                    <span class="badge bg-warning text-dark rounded-pill" style="font-size: 0.6rem;">
-                                        {{ tugas }}</span>
+                                    <div class="d-flex flex-wrap gap-1 mb-1">
+                                        {% if tugas.is_like %}<span class="badge bg-danger rounded-pill" style="font-size: 0.55rem;">Like</span>{% endif %}
+                                        {% if tugas.is_komen %}<span class="badge bg-primary rounded-pill" style="font-size: 0.55rem;">Komen</span>{% endif %}
+                                        {% if tugas.is_share %}<span class="badge bg-success rounded-pill" style="font-size: 0.55rem;">Share</span>{% endif %}
+                                        {% if tugas.is_follow %}<span class="badge bg-info text-dark rounded-pill" style="font-size: 0.55rem;">Follow</span>{% endif %}
+                                        {% if tugas.is_reply %}<span class="badge bg-secondary rounded-pill" style="font-size: 0.55rem;">Reply</span>{% endif %}
+                                    </div>
+                                    {% if tugas.instruksi %}
+                                    <small class="text-muted d-block text-truncate italic" style="font-size: 0.6rem;">
+                                        <i class="fas fa-info-circle me-1"></i>{{ tugas.instruksi }}
+                                    </small>
+                                    {% endif %}
                                 </div>
                                 <div class="ms-2">
                                     <small class="text-secondary" style="font-size: 0.65rem;">
@@ -139,19 +149,63 @@
         </div>
         {% elif request.session.active_role == 'COMMANDER' %}
         <!-- VIEW COMMANDER -->
+        <!-- Total Akun Medsos Commander -->
         <div class="col-12 col-md-6">
-            <div class="card border-0 shadow-sm h-100 p-4">
-                <div class="text-center py-5">
-                    <i class="fas fa-user-shield fa-3x text-primary mb-3 opacity-25"></i>
-                    <h6 class="fw-bold text-dark">Halo, COMMANDER!</h6>
-                    <p class="text-muted small" style="font-size: 0.75rem;">Dashboard Anda sedang dalam persiapan operasional wilayah.</p>
+            <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <p class="text-muted fw-bold mb-1 small text-uppercase ls-1">{{ user_stats.label|default:"TOTAL AKUN" }}</p>
+                            <h4 class="fw-bold text-dark mb-0">{{ user_stats.total|default:"0" }}</h4>
+                        </div>
+                        <div class="icon-box bg-maroon-soft text-maroon rounded-circle p-2 d-flex align-items-center justify-content-center"
+                            style="width: 45px; height: 45px;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Platform -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border shadow-sm">
+                            <i class="fab fa-instagram text-danger me-2 small"></i>
+                            <span class="fw-bold text-dark small">{{ user_stats.ig|default:"0" }}</span>
+                        </div>
+                        <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border shadow-sm">
+                            <i class="fab fa-tiktok text-dark me-2 small"></i>
+                            <span class="fw-bold text-dark small">{{ user_stats.tt|default:"0" }}</span>
+                        </div>
+                        <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border shadow-sm">
+                            <i class="fab fa-facebook text-primary me-2 small"></i>
+                            <span class="fw-bold text-dark small">{{ user_stats.fb|default:"0" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <span class="badge bg-maroon-soft text-maroon rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                            <i class="fas fa-users-cog me-1"></i> Monitoring Wilayah
+                        </span>
+                        <a href="{% url 'monitoring_akun_kader' %}" class="btn btn-sm btn-outline-maroon rounded-pill px-3"
+                            style="font-size: 0.7rem;">
+                            Selengkapnya <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Misi Wilayah Status -->
         <div class="col-12 col-md-6">
             <div class="card border-0 shadow-sm h-100 p-4">
-                <h6 class="fw-bold text-secondary border-bottom pb-2" style="font-size: 0.8rem;">MISI WILAYAH</h6>
-                <div class="text-center py-4 text-muted small italic" style="font-size: 0.75rem;">Menunggu misi baru...</div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-maroon text-uppercase mb-0 ls-1" style="font-size: 11px;">MISI WILAYAH</h6>
+                    <span class="badge bg-light text-muted border rounded-pill">{{ today|date:"d M Y" }}</span>
+                </div>
+                <div class="text-center py-5">
+                    <div class="icon-box bg-light rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="fas fa-map-marked-alt text-muted fa-lg"></i>
+                    </div>
+                    <p class="text-muted small mb-0 italic" style="font-size: 0.75rem;">Saat ini belum ada misi khusus untuk wilayah Anda.</p>
+                </div>
             </div>
         </div>
 

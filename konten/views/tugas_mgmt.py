@@ -2,7 +2,66 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta, datetime
-from konten.models import Konten, TugasKonten
+from django.contrib import messages
+from konten.models import Konten, TugasKonten, RiwayatMisi
+
+@login_required
+def verifikasi_laporan_misi(request):
+    # Hanya untuk DCO
+    if request.session.get('active_role') != 'DCO':
+        messages.error(request, "Anda tidak memiliki akses ke halaman ini.")
+        return redirect('dashboard')
+        
+    laporan_pending = RiwayatMisi.objects.filter(status='PENDING').order_by('-tanggal_selesai')
+    laporan_selesai = RiwayatMisi.objects.filter(status__in=['APPROVED', 'REJECTED']).order_by('-tanggal_verifikasi')[:50]
+    
+    context = {
+        'laporan_pending': laporan_pending,
+        'laporan_selesai': laporan_selesai,
+    }
+    return render(request, 'konten/verifikasi_laporan.html', context)
+
+@login_required
+def proses_verifikasi_laporan(request, riwayat_id, action):
+    # Hanya untuk DCO
+    if request.session.get('active_role') != 'DCO':
+        return redirect('dashboard')
+        
+    try:
+        riwayat = RiwayatMisi.objects.get(id=riwayat_id)
+        if action == 'approve':
+            riwayat.status = 'APPROVED'
+            riwayat.tanggal_verifikasi = timezone.now()
+            riwayat.catatan_verifikator = None
+            messages.success(request, f"Misi {riwayat.tugas.konten.judul} untuk user {riwayat.user.username} BERHASIL diverifikasi!")
+        elif action == 'reject':
+            catatan = request.POST.get('catatan')
+            
+            # PROSES HAPUS FILE FISIK (ANTI-SAMPAH)
+            fields = ['bukti_like', 'bukti_komen', 'bukti_share', 'bukti_follow', 'bukti_reply', 'foto_bukti']
+            for field_name in fields:
+                image_field = getattr(riwayat, field_name)
+                if image_field:
+                    try:
+                        file_path = image_field.path
+                        import os
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+                    except Exception:
+                        pass
+                    # Kosongkan field di database agar tidak ada link sampah
+                    setattr(riwayat, field_name, None)
+            
+            riwayat.status = 'REJECTED'
+            riwayat.tanggal_verifikasi = timezone.now()
+            riwayat.catatan_verifikator = catatan
+            messages.warning(request, f"Misi ditolak. File bukti telah dihapus dari server.")
+        
+        riwayat.save()
+    except RiwayatMisi.DoesNotExist:
+        messages.error(request, "Data riwayat tidak ditemukan.")
+        
+    return redirect('verifikasi_laporan')
 
 @login_required
 def tambah_tugas(request, konten_id):
